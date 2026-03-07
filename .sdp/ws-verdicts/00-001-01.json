@@ -1,0 +1,48 @@
+{
+  "ws_id": "00-001-01",
+  "feature_id": "F001",
+  "verdict": "PASS",
+  "commit": "495eb855aefc3d9a41d6a895f81208370bac432f",
+  "quality_gates": {
+    "tests_pass": true,
+    "lint_clean": true,
+    "coverage_pct": 0.0,
+    "coverage_threshold": 0,
+    "max_file_loc": 30,
+    "build_ok": true,
+    "vet_ok": true
+  },
+  "ac_evidence": [
+    {
+      "ac": "go.mod created with module name github.com/vano44/village",
+      "met": true,
+      "evidence": "go.mod:1 module github.com/vano44/village"
+    },
+    {
+      "ac": "Makefile includes targets: build, test, run",
+      "met": true,
+      "evidence": "Makefile:5-7 targets build, test, run"
+    },
+    {
+      "ac": "CI workflow runs go test on push to main",
+      "met": true,
+      "evidence": ".github/workflows/go.yml:4-5 on.push.branches main, line 18 Test step"
+    },
+    {
+      "ac": "Basic executable cmd/village/main.go compiles and prints version",
+      "met": true,
+      "evidence": "cmd/village/main.go:8 version constant, line 11 version flag check; go run cmd/village/main.go --version outputs 'Village Simulation v0.1.0'"
+    },
+    {
+      "ac": "go build ./... passes",
+      "met": true,
+      "evidence": "Command 'go build ./...' exited with code 0"
+    },
+    {
+      "ac": "go test ./... passes (empty test suite is okay)",
+      "met": true,
+      "evidence": "Command 'go test ./...' exited with code 0, output '? github.com/vano44/village/cmd/village [no test files]'"
+    }
+  ],
+  "existing_work_summary": "No existing Go code found; fresh project initialization."
+}
