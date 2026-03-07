@@ -5,6 +5,7 @@ type GameState struct {
 	ID        string     `json:"id"`
 	Version   int        `json:"version"`
 	Seed      int64      `json:"seed"`
+	RNG       *RNG       `json:"rng"`
 	Calendar  Calendar   `json:"calendar"`
 	Village   Village    `json:"village"`
 	Residents []Resident `json:"residents"`
@@ -20,6 +21,7 @@ func NewGameState(id string, seed int64) *GameState {
 		ID:      id,
 		Version: 1,
 		Seed:    seed,
+		RNG:     NewRNG(seed),
 		Calendar: Calendar{
 			Year:  1,
 			Month: 1,
