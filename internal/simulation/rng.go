@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 	"encoding/binary"
 	"encoding/json"
+	"math/rand"
 )
 
 // RNG is a deterministic random number generator.
@@ -100,4 +101,28 @@ func (r *RNG) UnmarshalJSON(data []byte) error {
 // State returns the current internal state (for testing).
 func (r *RNG) State() uint64 {
 	return r.state
+}
+
+// randSource implements rand.Source64 using the underlying RNG.
+type randSource struct {
+	rng *RNG
+}
+
+func (s *randSource) Seed(seed int64) {
+	// Not needed because RNG manages its own state
+	// We could reset the RNG state, but for compatibility we ignore.
+}
+
+func (s *randSource) Int63() int64 {
+	return int64(s.rng.Uint64() >> 1) // clear sign bit
+}
+
+func (s *randSource) Uint64() uint64 {
+	return s.rng.Uint64()
+}
+
+// Rand returns a *rand.Rand that uses this RNG as its source.
+// This allows the RNG to be used wherever *rand.Rand is expected.
+func (r *RNG) Rand() *rand.Rand {
+	return rand.New(&randSource{rng: r})
 }
