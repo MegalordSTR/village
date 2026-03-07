@@ -86,3 +86,16 @@ type Policy struct {
 	Description string `json:"description"`
 	Active      bool   `json:"active"`
 }
+
+// Environment represents environmental state.
+type Environment struct {
+	Temperature float64 `json:"temperature"` // in Celsius
+	Rainfall    float64 `json:"rainfall"`    // mm per week
+	Season      string  `json:"season"`      // "spring", "summer", "autumn", "winter"
+	// Soil fertility per region (simplified: single value for now)
+	SoilFertility float64 `json:"soil_fertility"` // 0.0 to 1.0
+	// Natural resources
+	ForestHealth       float64 `json:"forest_health"`       // 0.0 to 1.0
+	MineQuality        float64 `json:"mine_quality"`        // 0.0 to 1.0
+	WildlifePopulation float64 `json:"wildlife_population"` // 0.0 to 1.0
+}

@@ -2,17 +2,18 @@ package simulation
 
 // GameState represents the entire simulation state.
 type GameState struct {
-	ID        string     `json:"id"`
-	Version   int        `json:"version"`
-	Seed      int64      `json:"seed"`
-	RNG       *RNG       `json:"rng"`
-	Calendar  Calendar   `json:"calendar"`
-	Village   Village    `json:"village"`
-	Residents []Resident `json:"residents"`
-	Resources []Resource `json:"resources"`
-	Buildings []Building `json:"buildings"`
-	History   []Event    `json:"history"`
-	Policies  []Policy   `json:"policies"`
+	ID          string      `json:"id"`
+	Version     int         `json:"version"`
+	Seed        int64       `json:"seed"`
+	RNG         *RNG        `json:"rng"`
+	Calendar    Calendar    `json:"calendar"`
+	Village     Village     `json:"village"`
+	Residents   []Resident  `json:"residents"`
+	Resources   []Resource  `json:"resources"`
+	Buildings   []Building  `json:"buildings"`
+	History     []Event     `json:"history"`
+	Policies    []Policy    `json:"policies"`
+	Environment Environment `json:"environment"`
 }
 
 // NewGameState creates a new GameState with default values.
@@ -39,6 +40,15 @@ func NewGameState(id string, seed int64) *GameState {
 		Buildings: []Building{},
 		History:   []Event{},
 		Policies:  []Policy{},
+		Environment: Environment{
+			Temperature:        15.0, // mild temperature
+			Rainfall:           10.0, // mm per week
+			Season:             "spring",
+			SoilFertility:      0.7,
+			ForestHealth:       0.8,
+			MineQuality:        0.6,
+			WildlifePopulation: 0.5,
+		},
 	}
 }
 
