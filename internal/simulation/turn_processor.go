@@ -1,11 +1,5 @@
 package simulation
 
-import (
-	"math/rand"
-)
-
-var _ *rand.Rand = nil
-
 // TurnProcessor orchestrates weekly turn processing for all systems.
 type TurnProcessor struct {
 	systems map[SystemType]System
