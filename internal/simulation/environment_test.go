@@ -1,7 +1,6 @@
 package simulation
 
 import (
-	"math/rand"
 	"testing"
 )
 
@@ -129,10 +128,10 @@ func TestCalculateWeatherDeterministic(t *testing.T) {
 	for _, season := range seasons {
 		t.Run(season, func(t *testing.T) {
 			// Use same seed for both calls
-			rng1 := rand.New(rand.NewSource(42))
+			rng1 := NewRNG(42).Rand()
 			temp1, rain1 := calculateWeather(season, rng1)
 
-			rng2 := rand.New(rand.NewSource(42))
+			rng2 := NewRNG(42).Rand()
 			temp2, rain2 := calculateWeather(season, rng2)
 
 			if temp1 != temp2 {
@@ -184,7 +183,7 @@ func TestUpdateSoilFertility(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			rng := rand.New(rand.NewSource(123))
+			rng := NewRNG(123).Rand()
 			got := updateSoilFertility(tt.current, tt.rainfall, rng)
 
 			// Should stay in [0,1] range
@@ -200,7 +199,7 @@ func TestUpdateSoilFertility(t *testing.T) {
 
 	// Test clamping at boundaries
 	t.Run("clamp at 0", func(t *testing.T) {
-		rng := rand.New(rand.NewSource(456))
+		rng := NewRNG(456).Rand()
 		got := updateSoilFertility(0.0, 2.0, rng) // very dry reduces fertility
 		if got < 0 {
 			t.Errorf("updateSoilFertility should clamp at 0, got %f", got)
@@ -208,7 +207,7 @@ func TestUpdateSoilFertility(t *testing.T) {
 	})
 
 	t.Run("clamp at 1", func(t *testing.T) {
-		rng := rand.New(rand.NewSource(789))
+		rng := NewRNG(789).Rand()
 		got := updateSoilFertility(1.0, 15.0, rng) // ideal improves fertility
 		if got > 1.0 {
 			t.Errorf("updateSoilFertility should clamp at 1.0, got %f", got)
@@ -217,7 +216,7 @@ func TestUpdateSoilFertility(t *testing.T) {
 }
 
 func TestRegenerateResource(t *testing.T) {
-	rng := rand.New(rand.NewSource(456))
+	rng := NewRNG(456).Rand()
 
 	// Test regeneration
 	initial := 0.5
@@ -234,14 +233,14 @@ func TestRegenerateResource(t *testing.T) {
 	}
 
 	// Test clamping at 0
-	rng = rand.New(rand.NewSource(456))
+	rng = NewRNG(456).Rand()
 	low := regenerateResource(0.0, rng, -0.1) // negative rate
 	if low < 0 {
 		t.Errorf("regenerateResource should clamp at 0, got %f", low)
 	}
 
 	// Test clamping at 1
-	rng = rand.New(rand.NewSource(456))
+	rng = NewRNG(456).Rand()
 	high := regenerateResource(1.0, rng, 0.1)
 	if high > 1.0 {
 		t.Errorf("regenerateResource should clamp at 1.0, got %f", high)
@@ -249,7 +248,7 @@ func TestRegenerateResource(t *testing.T) {
 }
 
 func TestUpdateWildlife(t *testing.T) {
-	rng := rand.New(rand.NewSource(789))
+	rng := NewRNG(789).Rand()
 
 	// Test with different forest health values
 	tests := []struct {

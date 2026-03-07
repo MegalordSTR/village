@@ -1,6 +1,9 @@
 package simulation
 
-import "math/rand"
+import (
+	"math/rand"
+	"fmt"
+)
 
 // EnvironmentSystem implements the environmental simulation system.
 type EnvironmentSystem struct{}
@@ -179,7 +182,7 @@ func generateEventID(base string, week int) string {
 
 // formatWeekTimestamp creates a timestamp string for events.
 func formatWeekTimestamp(year, week int) string {
-	return string(rune(year)) + "-W" + string(rune(week))
+	return fmt.Sprintf("%d-W%d", year, week)
 }
 
 // GenerateWeatherEvents returns weather events based on temperature and rainfall.
