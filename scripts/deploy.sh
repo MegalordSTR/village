@@ -8,6 +8,7 @@ set -e
 ENVIRONMENT=${1:-local}
 COMPOSE_FILE="docker-compose.yml"
 DOCKER_COMPOSE="docker-compose"
+SKIP_HEALTH_CHECKS=0
 
 echo "Deploying Village Economy System ($ENVIRONMENT)"
 
@@ -18,28 +19,24 @@ command -v docker-compose >/dev/null 2>&1 || { echo "docker-compose is required 
 case "$ENVIRONMENT" in
   local)
     echo "Starting local deployment..."
-    # Build images
-    $DOCKER_COMPOSE -f $COMPOSE_FILE build
-    # Start services
-    $DOCKER_COMPOSE -f $COMPOSE_FILE up -d
+    # Build images and start services
+    $DOCKER_COMPOSE -f $COMPOSE_FILE up -d --build
     ;;
   production)
     echo "Starting production deployment..."
-    # Ensure we have production environment variables
+    # Require production environment variables
     if [ ! -f .env.production ]; then
-       echo "Warning: .env.production not found. Using default environment variables."
+       echo "Error: .env.production not found. Production deployment requires environment variables."
+       exit 1
     fi
-    # Pull latest images (if using registry)
-    # $DOCKER_COMPOSE -f $COMPOSE_FILE pull
     # Build images locally
     $DOCKER_COMPOSE -f $COMPOSE_FILE build --no-cache
-    # Stop existing services
-    $DOCKER_COMPOSE -f $COMPOSE_FILE down
-    # Start services
-    $DOCKER_COMPOSE -f $COMPOSE_FILE up -d
+    # Stop existing services and start new ones
+    $DOCKER_COMPOSE -f $COMPOSE_FILE up -d --build
     ;;
   ci)
     echo "CI/CD environment detected"
+    SKIP_HEALTH_CHECKS=1
     # Validate configuration
     $DOCKER_COMPOSE -f $COMPOSE_FILE config
     # Build images (no cache)
@@ -52,23 +49,42 @@ case "$ENVIRONMENT" in
     ;;
 esac
 
-echo "Waiting for services to become healthy..."
-sleep 10
+if [ "$SKIP_HEALTH_CHECKS" -eq 0 ]; then
+  echo "Waiting for services to become healthy..."
+  sleep 10
 
-# Health checks
-echo "Performing health checks..."
-if curl -f http://localhost:8080/health; then
-  echo "Backend is healthy"
+  # Health check with retry
+  health_check() {
+    local url=$1
+    local service=$2
+    local max_attempts=5
+    local attempt=1
+    echo "Checking $service health at $url"
+    while [ $attempt -le $max_attempts ]; do
+      if curl -f -s $url >/dev/null; then
+        echo "$service is healthy"
+        return 0
+      fi
+      echo "Attempt $attempt/$max_attempts failed, retrying in 5 seconds..."
+      sleep 5
+      attempt=$((attempt + 1))
+    done
+    echo "$service health check failed after $max_attempts attempts"
+    return 1
+  }
+
+  # Perform health checks
+  if ! health_check "http://localhost:8080/health" "Backend"; then
+    echo "Backend health check failed"
+    exit 1
+  fi
+
+  if ! health_check "http://localhost:80/health" "Frontend"; then
+    echo "Frontend health check failed"
+    exit 1
+  fi
+
+  echo "Deployment completed successfully!"
 else
-  echo "Backend health check failed"
-  exit 1
+  echo "CI validation completed"
 fi
-
-if curl -f http://localhost:80/health; then
-  echo "Frontend is healthy"
-else
-  echo "Frontend health check failed"
-  exit 1
-fi
-
-echo "Deployment completed successfully!"

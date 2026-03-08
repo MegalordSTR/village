@@ -1,0 +1,10 @@
+{
+  "feature": "F005",
+  "agent_id": "agent-20260308-2121",
+  "status": "completed",
+  "completed_ws": ["00-005-01"],
+  "failed_ws": [],
+  "execution_order": ["00-005-01"],
+  "started_at": "2026-03-08T21:21:11Z",
+  "last_updated": "2026-03-08T21:31:20Z"
+}
