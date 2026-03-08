@@ -314,115 +314,115 @@ func processCrafting(week int, state *GameState, rng *rand.Rand) []Event {
 
 // processConstruction handles building progress at construction sites.
 func processConstruction(week int, state *GameState, rng *rand.Rand) []Event {
-    var events []Event
+	var events []Event
 
-    for i := range state.Buildings {
-        b := &state.Buildings[i]
-        if b.Type != "construction_site" {
-            continue
-        }
+	for i := range state.Buildings {
+		b := &state.Buildings[i]
+		if b.Type != "construction_site" {
+			continue
+		}
 
-        if b.Metadata == nil {
-            b.Metadata = make(map[string]interface{})
-        }
+		if b.Metadata == nil {
+			b.Metadata = make(map[string]interface{})
+		}
 
-        // Get current progress (0-100)
-        progress, _ := b.Metadata["progress"].(float64)
-        if progress < 0 {
-            progress = 0
-        }
-        if progress >= 100 {
-            // Already completed
-            continue
-        }
+		// Get current progress (0-100)
+		progress, _ := b.Metadata["progress"].(float64)
+		if progress < 0 {
+			progress = 0
+		}
+		if progress >= 100 {
+			// Already completed
+			continue
+		}
 
-        // Determine workers assigned
-        workerCount := len(b.Workers)
-        // Each worker contributes 1 progress per week (base)
-        workerContribution := float64(workerCount)
+		// Determine workers assigned
+		workerCount := len(b.Workers)
+		// Each worker contributes 1 progress per week (base)
+		workerContribution := float64(workerCount)
 
-        // Check for required materials: wood and stone
-        woodNeeded := 5
-        stoneNeeded := 3
-        woodAvailable := 0
-        stoneAvailable := 0
-        for _, res := range state.Resources {
-            if res.Type == "wood" {
-                woodAvailable += res.Quantity
-            }
-            if res.Type == "stone" {
-                stoneAvailable += res.Quantity
-            }
-        }
+		// Check for required materials: wood and stone
+		woodNeeded := 5
+		stoneNeeded := 3
+		woodAvailable := 0
+		stoneAvailable := 0
+		for _, res := range state.Resources {
+			if res.Type == "wood" {
+				woodAvailable += res.Quantity
+			}
+			if res.Type == "stone" {
+				stoneAvailable += res.Quantity
+			}
+		}
 
-        // If materials insufficient, reduce contribution
-        materialMultiplier := 1.0
-        if woodAvailable < woodNeeded {
-            materialMultiplier *= 0.5
-        }
-        if stoneAvailable < stoneNeeded {
-            materialMultiplier *= 0.5
-        }
+		// If materials insufficient, reduce contribution
+		materialMultiplier := 1.0
+		if woodAvailable < woodNeeded {
+			materialMultiplier *= 0.5
+		}
+		if stoneAvailable < stoneNeeded {
+			materialMultiplier *= 0.5
+		}
 
-        // Consume materials if available
-        if woodAvailable >= woodNeeded && stoneAvailable >= stoneNeeded {
-            // Consume wood
-            woodToConsume := woodNeeded
-            for j := range state.Resources {
-                if state.Resources[j].Type == "wood" && woodToConsume > 0 {
-                    if state.Resources[j].Quantity <= woodToConsume {
-                        woodToConsume -= state.Resources[j].Quantity
-                        state.Resources[j].Quantity = 0
-                    } else {
-                        state.Resources[j].Quantity -= woodToConsume
-                        woodToConsume = 0
-                    }
-                }
-            }
-            // Consume stone
-            stoneToConsume := stoneNeeded
-            for j := range state.Resources {
-                if state.Resources[j].Type == "stone" && stoneToConsume > 0 {
-                    if state.Resources[j].Quantity <= stoneToConsume {
-                        stoneToConsume -= state.Resources[j].Quantity
-                        state.Resources[j].Quantity = 0
-                    } else {
-                        state.Resources[j].Quantity -= stoneToConsume
-                        stoneToConsume = 0
-                    }
-                }
-            }
-            // Remove zero quantity resources
-            newResources := make([]Resource, 0, len(state.Resources))
-            for _, res := range state.Resources {
-                if res.Quantity > 0 {
-                    newResources = append(newResources, res)
-                }
-            }
-            state.Resources = newResources
-        }
+		// Consume materials if available
+		if woodAvailable >= woodNeeded && stoneAvailable >= stoneNeeded {
+			// Consume wood
+			woodToConsume := woodNeeded
+			for j := range state.Resources {
+				if state.Resources[j].Type == "wood" && woodToConsume > 0 {
+					if state.Resources[j].Quantity <= woodToConsume {
+						woodToConsume -= state.Resources[j].Quantity
+						state.Resources[j].Quantity = 0
+					} else {
+						state.Resources[j].Quantity -= woodToConsume
+						woodToConsume = 0
+					}
+				}
+			}
+			// Consume stone
+			stoneToConsume := stoneNeeded
+			for j := range state.Resources {
+				if state.Resources[j].Type == "stone" && stoneToConsume > 0 {
+					if state.Resources[j].Quantity <= stoneToConsume {
+						stoneToConsume -= state.Resources[j].Quantity
+						state.Resources[j].Quantity = 0
+					} else {
+						state.Resources[j].Quantity -= stoneToConsume
+						stoneToConsume = 0
+					}
+				}
+			}
+			// Remove zero quantity resources
+			newResources := make([]Resource, 0, len(state.Resources))
+			for _, res := range state.Resources {
+				if res.Quantity > 0 {
+					newResources = append(newResources, res)
+				}
+			}
+			state.Resources = newResources
+		}
 
-        // Calculate progress increase
-        progressIncrease := workerContribution * materialMultiplier
-        progress += progressIncrease
-        if progress > 100 {
-            progress = 100
-        }
-        b.Metadata["progress"] = progress
+		// Calculate progress increase
+		progressIncrease := workerContribution * materialMultiplier
+		progress += progressIncrease
+		if progress > 100 {
+			progress = 100
+		}
+		b.Metadata["progress"] = progress
 
-        // If construction completed, generate event
-        if progress >= 100 {
-            events = append(events, Event{
-                ID:        generateEventID("construction-complete", week),
-                Type:      "construction",
-                Timestamp: formatWeekTimestamp(state.Calendar.Year, week),
-                Data: map[string]interface{}{
-                    "building": b.Location,
-                },
-            })
-            // Optionally change building type? For now, keep as construction_site
-        }
-    }
+		// If construction completed, generate event
+		if progress >= 100 {
+			events = append(events, Event{
+				ID:        generateEventID("construction-complete", week),
+				Type:      "construction",
+				Timestamp: formatWeekTimestamp(state.Calendar.Year, week),
+				Data: map[string]interface{}{
+					"building": b.Location,
+				},
+			})
+			// Optionally change building type? For now, keep as construction_site
+		}
+	}
 
-    return events
+	return events
 }

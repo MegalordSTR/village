@@ -91,6 +91,15 @@ You can verify all services with:
 make health
 ```
 
+## Security Considerations
+
+- **Environment Variables**: Never commit `.env.production` to version control. Use GitHub Actions secrets for CI/CD and keep the file secure on production servers.
+- **PostgreSQL Credentials**: The default credentials (`village:village`) in `docker‑compose.yml` are for local development only. In production, always set `POSTGRES_USER`, `POSTGRES_PASSWORD`, and `POSTGRES_DB` via `.env.production` or equivalent.
+- **SSH Deployment**: When using SSH deployment, store the private key as a GitHub Actions secret. The workflow adds the remote host’s fingerprint via `ssh‑keyscan`, but the first connection remains vulnerable to MITM if the fingerprint is not verified independently. For higher security, pre‑populate `known_hosts` with the verified fingerprint.
+- **Network Exposure**: By default, the frontend is accessible on port 80 and the backend on port 8080. In production, consider placing a reverse proxy (nginx, Traefik) in front of the services, enabling TLS/HTTPS, and restricting access with a firewall.
+- **Health Checks**: The health endpoints (`/health`) are exposed internally within the Docker network. They should not be publicly accessible.
+- **Docker Security**: The backend container runs as a non‑root user (`appuser`). The PostgreSQL container runs as the default `postgres` user. Keep images updated to avoid known vulnerabilities.
+
 ## Verification Commands
 
 Before deploying, you can run the following verification steps:
