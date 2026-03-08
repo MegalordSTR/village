@@ -57,7 +57,8 @@ type Resource struct {
 	Type     ResourceType `json:"type"`
 	Quantity float64      `json:"quantity"` // Units (kg, pieces, etc.)
 	Quality  QualityTier  `json:"quality"`
-	Location string       `json:"location"` // Building ID where stored
-	Produced GameDate     `json:"produced"` // Production date (for spoilage)
-	Value    float64      `json:"value"`    // Base value in abstract units
+	Location string       `json:"location"`          // Building ID where stored
+	Produced GameDate     `json:"produced"`          // Production date (for spoilage)
+	Value    float64      `json:"value"`             // Base value in abstract units
+	Spoiled  float64      `json:"spoiled,omitempty"` // Amount already spoiled (cumulative)
 }

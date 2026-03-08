@@ -38,6 +38,7 @@ func NewResource(rt ResourceType, quantity float64) Resource {
 		Location: "",
 		Produced: GameDate{},
 		Value:    BaseValue(rt),
+		Spoiled:  0.0,
 	}
 }
 

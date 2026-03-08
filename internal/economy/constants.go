@@ -16,12 +16,15 @@ func CategoryForResource(rt ResourceType) ResourceCategory {
 
 // SpoilageRate returns the base spoilage rate per week for a resource type.
 // Food spoils faster than materials. Non-food resources have zero spoilage.
+// Base rates: grain 1% (1x), vegetables 2% (2x), bread 0.5% (0.5x), flour 1% (1x).
 func SpoilageRate(rt ResourceType) float64 {
 	switch rt {
-	case ResourceGrain, ResourceVegetables:
+	case ResourceGrain, ResourceFlour:
+		return 0.01 // 1% per week
+	case ResourceVegetables:
 		return 0.02 // 2% per week
-	case ResourceFlour, ResourceBread:
-		return 0.03 // 3% per week (processed food spoils faster)
+	case ResourceBread:
+		return 0.005 // 0.5% per week
 	default:
 		return 0.0 // all other resources do not spoil
 	}
