@@ -70,15 +70,33 @@ jobs:
             set -e
             cd /opt/village
             git pull origin main
-            docker-compose up --build -d
-            # Simple health check
-            sleep 10
-            curl -f http://localhost:8080/health || { echo "Health check failed"; docker-compose logs; exit 1; }
+            docker-compose --env-file .env.production up --build -d
+            # Health check with retry
+            for i in {1..5}; do
+              if curl -f http://localhost:8080/health && curl -f http://localhost:80/health; then
+                echo "Both services healthy"
+                exit 0
+              fi
+              echo "Health check attempt $i/5 failed, retrying in 5 seconds..."
+              sleep 5
+            done
+            echo "Health check failed after 5 attempts"
+            docker-compose logs
+            exit 1
 
       - name: Deploy locally (fallback)
         if: ${{ secrets.SSH_PRIVATE_KEY == '' }}
         run: |
           docker-compose up --build -d
-          # Health check
-          sleep 10
-          curl -f http://localhost:8080/health || { echo "Health check failed"; docker-compose logs; exit 1; }
+          # Health check with retry
+          for i in {1..5}; do
+            if curl -f http://localhost:8080/health && curl -f http://localhost:80/health; then
+              echo "Both services healthy"
+              exit 0
+            fi
+            echo "Health check attempt $i/5 failed, retrying in 5 seconds..."
+            sleep 5
+          done
+          echo "Health check failed after 5 attempts"
+          docker-compose logs
+          exit 1

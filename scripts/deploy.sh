@@ -29,10 +29,11 @@ case "$ENVIRONMENT" in
        echo "Error: .env.production not found. Production deployment requires environment variables."
        exit 1
     fi
-    # Build images locally
-    $DOCKER_COMPOSE -f $COMPOSE_FILE build --no-cache
+    ENV_FILE=".env.production"
+    # Build images locally with no cache
+    $DOCKER_COMPOSE --env-file $ENV_FILE -f $COMPOSE_FILE build --no-cache
     # Stop existing services and start new ones
-    $DOCKER_COMPOSE -f $COMPOSE_FILE up -d --build
+    $DOCKER_COMPOSE --env-file $ENV_FILE -f $COMPOSE_FILE up -d
     ;;
   ci)
     echo "CI/CD environment detected"

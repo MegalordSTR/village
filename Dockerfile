@@ -27,6 +27,7 @@ COPY frontend .
 RUN npm run build -- --configuration production
 
 FROM nginx:alpine AS frontend
+RUN apk --no-cache add curl
 COPY --from=frontend-builder /app/dist /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/nginx.conf
 EXPOSE 80
