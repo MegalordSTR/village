@@ -1,5 +1,3 @@
-# syntax=docker/dockerfile:1
-
 # ===== BACKEND =====
 FROM golang:1.25-alpine AS backend-builder
 WORKDIR /app
