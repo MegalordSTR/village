@@ -1,0 +1,78 @@
+{
+  "ws_id": "00-002-03",
+  "feature_id": "F002",
+  "verdict": "PASS",
+  "commit": "299368ffe13f6b7f385ee2b23f17a2a0859a998b",
+  "quality_gates": {
+    "tests_pass": true,
+    "lint_clean": true,
+    "coverage_pct": 88.7,
+    "coverage_threshold": 80,
+    "max_file_loc": 173,
+    "build_ok": true,
+    "vet_ok": true
+  },
+  "ac_evidence": [
+    {
+      "ac": "Inventory manager with methods: AddResource, RemoveResource, GetAvailable, TransferResource",
+      "met": true,
+      "evidence": "TestInventory_AddResource, TestInventory_RemoveResource, TestInventory_TransferResource in inventory_test.go"
+    },
+    {
+      "ac": "Storage building types: Granary (food, 1000kg), Warehouse (goods, 500 units), OutdoorPile (200 units, high spoilage)",
+      "met": true,
+      "evidence": "StorageBuilding type constants and Capacity() method in storage.go"
+    },
+    {
+      "ac": "Capacity limits enforced per storage type",
+      "met": true,
+      "evidence": "TestInventory_CapacityLimit in inventory_test.go"
+    },
+    {
+      "ac": "Spoilage system: different rates per resource type (grain 1x, vegetables 2x, meat 3x, bread 0.5x)",
+      "met": true,
+      "evidence": "Updated SpoilageRate in constants.go, TestSpoilageRate passes"
+    },
+    {
+      "ac": "Spoilage affected by storage quality (0.5x for good storage, 2.0x for poor)",
+      "met": true,
+      "evidence": "StorageQuality and SpoilageMultiplier in storage.go, TestApplySpoilage_Vegetables_OutdoorPile_Poor"
+    },
+    {
+      "ac": "Quality degradation when spoilage exceeds threshold",
+      "met": true,
+      "evidence": "ApplySpoilage quality degradation logic, TestApplySpoilage_QualityDegradation"
+    },
+    {
+      "ac": "Stock alerts when resources fall below configurable thresholds",
+      "met": true,
+      "evidence": "CheckAlerts method in inventory.go, TestInventory_CheckAlerts"
+    },
+    {
+      "ac": "Resource aging tracking (production date)",
+      "met": true,
+      "evidence": "Resource.Produced field, WeeksSince function, spoilage calculations"
+    },
+    {
+      "ac": "Integration with existing GameState.Resources (backward compatibility)",
+      "met": true,
+      "evidence": "LoadInventoryFromGameState and ExportInventoryToGameState functions, TestInventory_GameStateIntegration"
+    },
+    {
+      "ac": "Unit tests covering all inventory operations and spoilage scenarios",
+      "met": true,
+      "evidence": "inventory_test.go, spoilage_test.go, coverage 88.7%"
+    },
+    {
+      "ac": "`go build ./internal/economy` passes",
+      "met": true,
+      "evidence": "build succeeded"
+    },
+    {
+      "ac": "`go test ./internal/economy -run TestInventory` passes with ≥80% coverage",
+      "met": true,
+      "evidence": "tests pass, overall coverage 88.7%"
+    }
+  ],
+  "existing_work_summary": "Existing economy package had resource types, spoilage rates, constants, and simulation integration. No inventory or storage system present. Added inventory, storage, spoilage modules."
+}

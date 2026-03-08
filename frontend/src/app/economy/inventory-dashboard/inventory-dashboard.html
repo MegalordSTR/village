@@ -1,0 +1,22 @@
+<h3>Inventory</h3>
+<div *ngIf="resources$ | async as resources; else loading">
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Quantity</th>
+        <th>Quality</th>
+        <th>Category</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let resource of resources">
+        <td>{{ resource.name }}</td>
+        <td>{{ resource.quantity }}</td>
+        <td>{{ resource.quality }}</td>
+        <td>{{ resource.category }}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+<ng-template #loading>Loading inventory...</ng-template>

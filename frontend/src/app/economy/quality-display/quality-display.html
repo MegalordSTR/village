@@ -1,0 +1,7 @@
+<h3>Quality Tiers</h3>
+<div *ngIf="tiers$ | async as tiers; else loading">
+  <div *ngFor="let tier of tiers" class="tier" [style.color]="tier.color">
+    <span class="badge">{{ tier.tier }}</span> {{ tier.label }}
+  </div>
+</div>
+<ng-template #loading>Loading quality tiers...</ng-template>
