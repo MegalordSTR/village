@@ -1,8 +1,8 @@
 package simulation
 
 import (
-	"math/rand"
 	"fmt"
+	"math/rand"
 )
 
 // EnvironmentSystem implements the environmental simulation system.

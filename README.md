@@ -110,8 +110,12 @@ The script supports environment-specific configurations and health checks.
 
 The project includes a GitHub Actions workflow (`.github/workflows/deploy.yml`) that:
 - Runs tests on every push and pull request
-- Builds and pushes Docker images to GitHub Container Registry
-- Deploys to production on pushes to the main branch
+- Builds Docker images locally (no external registry dependency)
+- Deploys to production on pushes to the main branch either:
+  - **Via SSH** to a remote server (if SSH credentials are configured)
+  - **Locally on the CI runner** (for validation)
+
+See [deployment documentation](docs/deployment.md) for details.
 
 ## Configuration
 

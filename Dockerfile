@@ -9,9 +9,12 @@ COPY . .
 RUN go build -o village ./cmd/village
 
 FROM alpine:latest AS backend
-RUN apk --no-cache add ca-certificates
-WORKDIR /root/
+RUN apk --no-cache add ca-certificates curl
+RUN addgroup -g 1000 -S village && adduser -u 1000 -S village -G village
+WORKDIR /home/village
 COPY --from=backend-builder /app/village .
+RUN chown village:village village
+USER village
 EXPOSE 8080
 CMD ["./village"]
 
@@ -24,6 +27,7 @@ COPY frontend .
 RUN npm run build -- --configuration production
 
 FROM nginx:alpine AS frontend
+RUN apk --no-cache add curl
 COPY --from=frontend-builder /app/dist /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/nginx.conf
 EXPOSE 80

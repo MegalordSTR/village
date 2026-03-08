@@ -2,9 +2,9 @@ services:
   postgres:
     image: postgres:16-alpine
     environment:
-      POSTGRES_DB: village
-      POSTGRES_USER: village
-      POSTGRES_PASSWORD: village
+      POSTGRES_DB: ${POSTGRES_DB:-village}
+      POSTGRES_USER: ${POSTGRES_USER:-village}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-village}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
@@ -22,7 +22,7 @@ services:
       context: .
       target: backend
     environment:
-      DATABASE_URL: postgres://village:village@postgres:5432/village?sslmode=disable
+      DATABASE_URL: postgres://${POSTGRES_USER:-village}:${POSTGRES_PASSWORD:-village}@postgres:5432/${POSTGRES_DB:-village}?sslmode=disable
       PORT: 8080
     depends_on:
       postgres:
@@ -32,7 +32,7 @@ services:
     networks:
       - village-network
     healthcheck:
-      test: ["CMD-SHELL", "ps aux | grep village | grep -v grep || exit 1"]
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
       interval: 30s
       timeout: 10s
       retries: 3
