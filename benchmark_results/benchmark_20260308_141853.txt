@@ -1,0 +1,14 @@
+goos: linux
+goarch: amd64
+pkg: github.com/vano44/village/internal/simulation
+cpu: AMD Ryzen 9 9900X3D 12-Core Processor          
+BenchmarkProcessWeek10Residents-24     	  313966	      3539 ns/op	    8086 B/op	      68 allocs/op
+BenchmarkProcessWeek50Residents-24     	   39829	     32349 ns/op	   47057 B/op	     338 allocs/op
+BenchmarkProcessWeek100Residents-24    	    8986	    129032 ns/op	  132751 B/op	     774 allocs/op
+BenchmarkMemoryUsage/10_residents-24   	  319335	      3605 ns/op	    8023 B/op	      68 allocs/op
+BenchmarkMemoryUsage/50_residents-24   	   38648	     30982 ns/op	   46810 B/op	     338 allocs/op
+BenchmarkMemoryUsage/100_residents-24  	    8148	    130195 ns/op	  132726 B/op	     774 allocs/op
+PASS
+ok  	github.com/vano44/village/internal/simulation	7.708s
+
+=== Performance Summary ===
