@@ -1,0 +1,1368 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>simulation: Go Coverage Report</title>
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">github.com/vano44/village/internal/simulation/core.go (0.0%)</option>
+				
+				<option value="file1">github.com/vano44/village/internal/simulation/environment.go (0.0%)</option>
+				
+				<option value="file2">github.com/vano44/village/internal/simulation/production.go (0.0%)</option>
+				
+				<option value="file3">github.com/vano44/village/internal/simulation/rng.go (15.8%)</option>
+				
+				<option value="file4">github.com/vano44/village/internal/simulation/serialization.go (0.0%)</option>
+				
+				<option value="file5">github.com/vano44/village/internal/simulation/social.go (79.0%)</option>
+				
+				<option value="file6">github.com/vano44/village/internal/simulation/state.go (33.3%)</option>
+				
+				<option value="file7">github.com/vano44/village/internal/simulation/turn_processor.go (0.0%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">not covered</span>
+				<span class="cov8">covered</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">// Package simulation implements the core deterministic village simulation engine.
+//
+// The simulation processes weekly turns, updating all game systems in a
+// deterministic order: environment → production → social → economic → events.
+package simulation
+
+// Core represents the main simulation engine.
+type Core struct {
+        // TODO: Implement simulation core
+}
+
+// NewCore creates a new simulation core.
+func NewCore() *Core <span class="cov0" title="0">{
+        return &amp;Core{}
+}</span>
+
+// ProcessWeek advances the simulation by one week.
+func (c *Core) ProcessWeek() error <span class="cov0" title="0">{
+        // TODO: Implement weekly turn processing
+        return nil
+}</span>
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">package simulation
+
+import (
+        "math/rand"
+        "fmt"
+)
+
+// EnvironmentSystem implements the environmental simulation system.
+type EnvironmentSystem struct{}
+
+// NewEnvironmentSystem creates a new environmental system.
+func NewEnvironmentSystem() *EnvironmentSystem <span class="cov0" title="0">{
+        return &amp;EnvironmentSystem{}
+}</span>
+
+// Update processes one week of environmental simulation.
+// It updates weather, seasons, temperature, soil fertility, natural resources, and wildlife.
+func (e *EnvironmentSystem) Update(week int, state *GameState, rng *rand.Rand) []Event <span class="cov0" title="0">{
+        var events []Event
+
+        // Update season based on week of year (1-52)
+        season := calculateSeason(week)
+        state.Environment.Season = season
+
+        // Update temperature and rainfall based on season
+        temp, rain := calculateWeather(season, rng)
+        state.Environment.Temperature = temp
+        state.Environment.Rainfall = rain
+
+        // Update soil fertility (simplified: improves with moderate rain, degrades with extremes)
+        state.Environment.SoilFertility = updateSoilFertility(state.Environment.SoilFertility, rain, rng)
+
+        // Natural resource regeneration
+        state.Environment.ForestHealth = regenerateResource(state.Environment.ForestHealth, rng, 0.01) // slow regeneration
+        state.Environment.MineQuality = regenerateResource(state.Environment.MineQuality, rng, 0.001)  // very slow
+
+        // Wildlife population fluctuations
+        state.Environment.WildlifePopulation = updateWildlife(
+                state.Environment.WildlifePopulation,
+                state.Environment.ForestHealth,
+                rng,
+        )
+
+        // Generate events for significant changes
+        events = append(events, GenerateWeatherEvents(temp, rain, week, state.Calendar.Year)...)
+
+        return events
+}</span>
+
+// calculateSeason determines the season based on week number (1-52).
+func calculateSeason(week int) string <span class="cov0" title="0">{
+        // 52 weeks per year, 13 weeks per season
+        // Week 1-13: Spring, 14-26: Summer, 27-39: Autumn, 40-52: Winter
+        switch </span>{
+        case week &lt;= 0:<span class="cov0" title="0">
+                return "winter"</span> // should not happen
+        case week &lt;= 13:<span class="cov0" title="0">
+                return "spring"</span>
+        case week &lt;= 26:<span class="cov0" title="0">
+                return "summer"</span>
+        case week &lt;= 39:<span class="cov0" title="0">
+                return "autumn"</span>
+        default:<span class="cov0" title="0">
+                return "winter"</span>
+        }
+}
+
+// calculateWeather returns temperature (°C) and rainfall (mm/week) for a given season.
+func calculateWeather(season string, rng *rand.Rand) (float64, float64) <span class="cov0" title="0">{
+        // Base values per season (temperate climate)
+        var baseTemp, baseRain float64
+        switch season </span>{
+        case "spring":<span class="cov0" title="0">
+                baseTemp = 10.0
+                baseRain = 15.0</span>
+        case "summer":<span class="cov0" title="0">
+                baseTemp = 22.0
+                baseRain = 8.0</span>
+        case "autumn":<span class="cov0" title="0">
+                baseTemp = 12.0
+                baseRain = 18.0</span>
+        case "winter":<span class="cov0" title="0">
+                baseTemp = 2.0
+                baseRain = 12.0</span>
+        default:<span class="cov0" title="0">
+                baseTemp = 15.0
+                baseRain = 10.0</span>
+        }
+
+        // Add some randomness (±5°C, ±5mm)
+        <span class="cov0" title="0">temp := baseTemp + (rng.Float64()*10 - 5)
+        rain := baseRain + (rng.Float64()*10 - 5)
+        if rain &lt; 0 </span><span class="cov0" title="0">{
+                rain = 0
+        }</span>
+
+        <span class="cov0" title="0">return temp, rain</span>
+}
+
+// updateSoilFertility updates soil fertility based on rainfall.
+// Simplified model: moderate rain (10-20mm) improves fertility,
+// extreme dryness or heavy rain reduces it.
+func updateSoilFertility(current float64, rainfall float64, rng *rand.Rand) float64 <span class="cov0" title="0">{
+        change := 0.0
+        switch </span>{
+        case rainfall &gt; 0 &amp;&amp; rainfall &lt; 5:<span class="cov0" title="0">
+                // Very dry - fertility decreases
+                change = -0.01</span>
+        case rainfall &gt;= 5 &amp;&amp; rainfall &lt; 10:<span class="cov0" title="0">
+                // Slightly dry - small decrease
+                change = -0.005</span>
+        case rainfall &gt;= 10 &amp;&amp; rainfall &lt;= 20:<span class="cov0" title="0">
+                // Ideal - fertility improves
+                change = 0.01</span>
+        case rainfall &gt; 20 &amp;&amp; rainfall &lt;= 30:<span class="cov0" title="0">
+                // Heavy rain - washes nutrients
+                change = -0.005</span>
+        case rainfall &gt; 30:<span class="cov0" title="0">
+                // Very heavy - significant decrease
+                change = -0.02</span>
+        }
+
+        // Add small random variation
+        <span class="cov0" title="0">change += (rng.Float64()*0.02 - 0.01)
+
+        newFertility := current + change
+        // Clamp between 0.0 and 1.0
+        if newFertility &lt; 0 </span><span class="cov0" title="0">{
+                return 0.0
+        }</span>
+        <span class="cov0" title="0">if newFertility &gt; 1.0 </span><span class="cov0" title="0">{
+                return 1.0
+        }</span>
+        <span class="cov0" title="0">return newFertility</span>
+}
+
+// regenerateResource slowly regenerates a natural resource.
+func regenerateResource(current float64, rng *rand.Rand, rate float64) float64 <span class="cov0" title="0">{
+        // Resources slowly regenerate on their own
+        change := rate + (rng.Float64()*0.01 - 0.005)
+        newValue := current + change
+        if newValue &lt; 0 </span><span class="cov0" title="0">{
+                return 0.0
+        }</span>
+        <span class="cov0" title="0">if newValue &gt; 1.0 </span><span class="cov0" title="0">{
+                return 1.0
+        }</span>
+        <span class="cov0" title="0">return newValue</span>
+}
+
+// updateWildlife updates wildlife population based on forest health.
+func updateWildlife(current, forestHealth float64, rng *rand.Rand) float64 <span class="cov0" title="0">{
+        // Wildlife depends on forest health
+        baseChange := 0.005
+        // If forest health is good (&gt;0.7), population grows faster
+        if forestHealth &gt; 0.7 </span><span class="cov0" title="0">{
+                baseChange = 0.01
+        }</span>
+        // If forest health is poor (&lt;0.3), population declines
+        <span class="cov0" title="0">if forestHealth &lt; 0.3 </span><span class="cov0" title="0">{
+                baseChange = -0.01
+        }</span>
+
+        // Add randomness
+        <span class="cov0" title="0">change := baseChange + (rng.Float64()*0.02 - 0.01)
+        newValue := current + change
+        // Clamp
+        if newValue &lt; 0 </span><span class="cov0" title="0">{
+                return 0.0
+        }</span>
+        <span class="cov0" title="0">if newValue &gt; 1.0 </span><span class="cov0" title="0">{
+                return 1.0
+        }</span>
+        <span class="cov0" title="0">return newValue</span>
+}
+
+// generateEventID creates a deterministic event ID.
+func generateEventID(base string, week int) string <span class="cov0" title="0">{
+        // Simple deterministic ID
+        return base + "-" + string(rune(week%26+97)) // append a letter a-z based on week
+}</span>
+
+// formatWeekTimestamp creates a timestamp string for events.
+func formatWeekTimestamp(year, week int) string <span class="cov0" title="0">{
+        return fmt.Sprintf("%d-W%d", year, week)
+}</span>
+
+// GenerateWeatherEvents returns weather events based on temperature and rainfall.
+func GenerateWeatherEvents(temp, rain float64, week, year int) []Event <span class="cov0" title="0">{
+        var events []Event
+        if rain &gt; 20.0 </span><span class="cov0" title="0">{
+                events = append(events, Event{
+                        ID:        generateEventID("heavy-rain", week),
+                        Type:      "weather",
+                        Timestamp: formatWeekTimestamp(year, week),
+                        Data: map[string]interface{}{
+                                "rainfall": rain,
+                                "severity": "heavy",
+                        },
+                })
+        }</span>
+        <span class="cov0" title="0">if temp &lt; 0.0 </span><span class="cov0" title="0">{
+                events = append(events, Event{
+                        ID:        generateEventID("freezing-temp", week),
+                        Type:      "weather",
+                        Timestamp: formatWeekTimestamp(year, week),
+                        Data: map[string]interface{}{
+                                "temperature": temp,
+                                "severity":    "freezing",
+                        },
+                })
+        }</span>
+        <span class="cov0" title="0">return events</span>
+}
+</pre>
+		
+		<pre class="file" id="file2" style="display: none">package simulation
+
+import (
+        "math/rand"
+)
+
+// ProductionSystem implements the production simulation system.
+// It handles agriculture, mining, crafting, and construction.
+type ProductionSystem struct{}
+
+// NewProductionSystem creates a new production system.
+func NewProductionSystem() *ProductionSystem <span class="cov0" title="0">{
+        return &amp;ProductionSystem{}
+}</span>
+
+// Update processes one week of production simulation.
+// It updates crop growth, mining extraction, crafting, and construction progress.
+func (p *ProductionSystem) Update(week int, state *GameState, rng *rand.Rand) []Event <span class="cov0" title="0">{
+        var events []Event
+
+        events = append(events, processAgriculture(week, state, rng)...)
+        events = append(events, processMining(week, state, rng)...)
+        events = append(events, processCrafting(week, state, rng)...)
+        events = append(events, processConstruction(week, state, rng)...)
+
+        return events
+}</span>
+
+// processAgriculture handles crop growth and harvesting for farm buildings.
+func processAgriculture(week int, state *GameState, rng *rand.Rand) []Event <span class="cov0" title="0">{
+        var events []Event
+
+        for i := range state.Buildings </span><span class="cov0" title="0">{
+                b := &amp;state.Buildings[i]
+                if b.Type != "farm" </span><span class="cov0" title="0">{
+                        continue</span>
+                }
+
+                // Ensure metadata map exists
+                <span class="cov0" title="0">if b.Metadata == nil </span><span class="cov0" title="0">{
+                        b.Metadata = make(map[string]interface{})
+                }</span>
+
+                // Initialize crop if not present
+                <span class="cov0" title="0">if _, ok := b.Metadata["crop_type"]; !ok </span><span class="cov0" title="0">{
+                        // Plant a crop (simplified: always plant wheat)
+                        b.Metadata["crop_type"] = "wheat"
+                        b.Metadata["growth_stage"] = 0
+                        b.Metadata["planted_week"] = week
+                        continue</span>
+                }
+
+                <span class="cov0" title="0">growthStage, _ := b.Metadata["growth_stage"].(int)
+                _, _ = b.Metadata["planted_week"].(int) // unused for now
+
+                // Calculate growth chance based on environment
+                growthChance := calculateGrowthChance(state.Environment, rng)
+                if rng.Float64() &lt; growthChance </span><span class="cov0" title="0">{
+                        growthStage++
+                        b.Metadata["growth_stage"] = growthStage
+                }</span>
+
+                // If crop is harvestable (stage &gt;= 3), produce yield and reset
+                <span class="cov0" title="0">if growthStage &gt;= 3 </span><span class="cov0" title="0">{
+                        yield := calculateYield(state.Environment, b.Level, rng)
+                        // Add resource
+                        state.AddResource(Resource{
+                                Type:     b.Metadata["crop_type"].(string),
+                                Quantity: yield,
+                                Quality:  1.0, // TODO: vary based on conditions
+                        })
+                        // Record event
+                        events = append(events, Event{
+                                ID:        generateEventID("harvest", week),
+                                Type:      "agriculture",
+                                Timestamp: formatWeekTimestamp(state.Calendar.Year, week),
+                                Data: map[string]interface{}{
+                                        "crop":  b.Metadata["crop_type"],
+                                        "yield": yield,
+                                        "farm":  b.Location,
+                                },
+                        })
+                        // Reset crop (re-plant)
+                        b.Metadata["growth_stage"] = 0
+                        b.Metadata["planted_week"] = week
+                }</span>
+        }
+
+        <span class="cov0" title="0">return events</span>
+}
+
+// calculateGrowthChance returns the probability (0-1) that a crop advances a growth stage.
+func calculateGrowthChance(env Environment, rng *rand.Rand) float64 <span class="cov0" title="0">{
+        // Base chance per week
+        baseChance := 0.3
+
+        // Soil fertility effect: higher fertility increases chance
+        fertilityEffect := env.SoilFertility * 0.2
+
+        // Rainfall effect: moderate rainfall (10-20mm) is best
+        rainEffect := 0.0
+        if env.Rainfall &gt;= 10 &amp;&amp; env.Rainfall &lt;= 20 </span><span class="cov0" title="0">{
+                rainEffect = 0.1
+        }</span> else<span class="cov0" title="0"> if env.Rainfall &gt; 20 </span><span class="cov0" title="0">{
+                // Too much rain reduces growth
+                rainEffect = -0.05
+        }</span> else<span class="cov0" title="0"> {
+                // Too little rain reduces growth
+                rainEffect = -0.05
+        }</span>
+
+        // Temperature effect: optimal around 20°C
+        <span class="cov0" title="0">tempEffect := 0.0
+        if env.Temperature &gt;= 15 &amp;&amp; env.Temperature &lt;= 25 </span><span class="cov0" title="0">{
+                tempEffect = 0.1
+        }</span> else<span class="cov0" title="0"> if env.Temperature &lt; 5 || env.Temperature &gt; 35 </span><span class="cov0" title="0">{
+                tempEffect = -0.1
+        }</span>
+
+        // Combine
+        <span class="cov0" title="0">chance := baseChance + fertilityEffect + rainEffect + tempEffect
+        // Clamp between 0.05 and 0.8
+        if chance &lt; 0.05 </span><span class="cov0" title="0">{
+                return 0.05
+        }</span>
+        <span class="cov0" title="0">if chance &gt; 0.8 </span><span class="cov0" title="0">{
+                return 0.8
+        }</span>
+        <span class="cov0" title="0">return chance</span>
+}
+
+// calculateYield returns the amount of crop harvested.
+func calculateYield(env Environment, farmLevel int, rng *rand.Rand) int <span class="cov0" title="0">{
+        // Base yield per farm level
+        baseYield := 10 * farmLevel
+
+        // Soil fertility multiplier
+        fertilityMultiplier := env.SoilFertility
+
+        // Rainfall multiplier: optimal 10-20mm gives 1.0, otherwise less
+        rainMultiplier := 1.0
+        if env.Rainfall &gt;= 10 &amp;&amp; env.Rainfall &lt;= 20 </span><span class="cov0" title="0">{
+                rainMultiplier = 1.2
+        }</span> else<span class="cov0" title="0"> if env.Rainfall &gt; 20 </span><span class="cov0" title="0">{
+                rainMultiplier = 0.8
+        }</span> else<span class="cov0" title="0"> {
+                rainMultiplier = 0.7
+        }</span>
+
+        // Temperature multiplier: optimal 15-25°C
+        <span class="cov0" title="0">tempMultiplier := 1.0
+        if env.Temperature &gt;= 15 &amp;&amp; env.Temperature &lt;= 25 </span><span class="cov0" title="0">{
+                tempMultiplier = 1.1
+        }</span> else<span class="cov0" title="0"> if env.Temperature &lt; 5 || env.Temperature &gt; 35 </span><span class="cov0" title="0">{
+                tempMultiplier = 0.6
+        }</span>
+
+        // Random variation ±20%
+        <span class="cov0" title="0">variation := 0.8 + rng.Float64()*0.4
+
+        yield := float64(baseYield) * fertilityMultiplier * rainMultiplier * tempMultiplier * variation
+        if yield &lt; 1 </span><span class="cov0" title="0">{
+                return 1
+        }</span>
+        <span class="cov0" title="0">return int(yield)</span>
+}
+
+// processMining handles resource extraction for mine buildings.
+func processMining(week int, state *GameState, rng *rand.Rand) []Event <span class="cov0" title="0">{
+        var events []Event
+
+        for i := range state.Buildings </span><span class="cov0" title="0">{
+                b := &amp;state.Buildings[i]
+                if b.Type != "mine" </span><span class="cov0" title="0">{
+                        continue</span>
+                }
+
+                <span class="cov0" title="0">if b.Metadata == nil </span><span class="cov0" title="0">{
+                        b.Metadata = make(map[string]interface{})
+                }</span>
+
+                // Get depletion level (0-1), where 1 means fully depleted
+                <span class="cov0" title="0">depletion, _ := b.Metadata["depletion"].(float64)
+                if depletion &lt; 0 </span><span class="cov0" title="0">{
+                        depletion = 0
+                }</span>
+                <span class="cov0" title="0">if depletion &gt; 1 </span><span class="cov0" title="0">{
+                        depletion = 1
+                }</span>
+
+                // Regenerate depletion slightly each week (natural recovery)
+                <span class="cov0" title="0">regeneration := 0.01 + rng.Float64()*0.02
+                depletion -= regeneration
+                if depletion &lt; 0 </span><span class="cov0" title="0">{
+                        depletion = 0
+                }</span>
+
+                // Calculate extraction amount based on mine quality, level, and depletion
+                <span class="cov0" title="0">baseExtraction := 5 * b.Level
+                qualityMultiplier := state.Environment.MineQuality
+                depletionMultiplier := 1.0 - depletion // less extraction as depletion increases
+                variation := 0.8 + rng.Float64()*0.4
+
+                extraction := float64(baseExtraction) * qualityMultiplier * depletionMultiplier * variation
+                if extraction &lt; 0 </span><span class="cov0" title="0">{
+                        extraction = 0
+                }</span>
+
+                // Increase depletion based on extraction
+                <span class="cov0" title="0">depletionIncrease := extraction / 100.0 // each unit extracted increases depletion by 0.01
+                depletion += depletionIncrease
+                if depletion &gt; 1 </span><span class="cov0" title="0">{
+                        depletion = 1
+                }</span>
+
+                // Store updated depletion
+                <span class="cov0" title="0">b.Metadata["depletion"] = depletion
+
+                if extraction &gt; 0 </span><span class="cov0" title="0">{
+                        // Add resource (simplified: always produce "ore")
+                        state.AddResource(Resource{
+                                Type:     "ore",
+                                Quantity: int(extraction),
+                                Quality:  qualityMultiplier,
+                        })
+
+                        events = append(events, Event{
+                                ID:        generateEventID("mining", week),
+                                Type:      "mining",
+                                Timestamp: formatWeekTimestamp(state.Calendar.Year, week),
+                                Data: map[string]interface{}{
+                                        "ore":       int(extraction),
+                                        "mine":      b.Location,
+                                        "depletion": depletion,
+                                },
+                        })
+                }</span>
+        }
+
+        <span class="cov0" title="0">return events</span>
+}
+
+// processCrafting transforms raw materials into goods at workshop buildings.
+func processCrafting(week int, state *GameState, rng *rand.Rand) []Event <span class="cov0" title="0">{
+        var events []Event
+
+        for i := range state.Buildings </span><span class="cov0" title="0">{
+                b := &amp;state.Buildings[i]
+                if b.Type != "workshop" </span><span class="cov0" title="0">{
+                        continue</span>
+                }
+
+                <span class="cov0" title="0">if b.Metadata == nil </span><span class="cov0" title="0">{
+                        b.Metadata = make(map[string]interface{})
+                }</span>
+
+                // Determine recipe (simplified: consume 2 ore, produce 1 tool)
+                <span class="cov0" title="0">requiredOre := 2
+                // Check if we have enough ore
+                oreAvailable := 0
+                for _, res := range state.Resources </span><span class="cov0" title="0">{
+                        if res.Type == "ore" </span><span class="cov0" title="0">{
+                                oreAvailable += res.Quantity
+                        }</span>
+                }
+                <span class="cov0" title="0">if oreAvailable &lt; requiredOre </span><span class="cov0" title="0">{
+                        // Not enough resources
+                        continue</span>
+                }
+
+                // Consume ore
+                <span class="cov0" title="0">oreToConsume := requiredOre
+                for j := range state.Resources </span><span class="cov0" title="0">{
+                        if state.Resources[j].Type == "ore" &amp;&amp; oreToConsume &gt; 0 </span><span class="cov0" title="0">{
+                                if state.Resources[j].Quantity &lt;= oreToConsume </span><span class="cov0" title="0">{
+                                        oreToConsume -= state.Resources[j].Quantity
+                                        state.Resources[j].Quantity = 0
+                                }</span> else<span class="cov0" title="0"> {
+                                        state.Resources[j].Quantity -= oreToConsume
+                                        oreToConsume = 0
+                                }</span>
+                        }
+                }
+                // Remove resources with zero quantity
+                <span class="cov0" title="0">newResources := make([]Resource, 0, len(state.Resources))
+                for _, res := range state.Resources </span><span class="cov0" title="0">{
+                        if res.Quantity &gt; 0 </span><span class="cov0" title="0">{
+                                newResources = append(newResources, res)
+                        }</span>
+                }
+                <span class="cov0" title="0">state.Resources = newResources
+
+                // Produce tool
+                toolsProduced := 1 * b.Level
+                state.AddResource(Resource{
+                        Type:     "tool",
+                        Quantity: toolsProduced,
+                        Quality:  1.0,
+                })
+
+                events = append(events, Event{
+                        ID:        generateEventID("crafting", week),
+                        Type:      "crafting",
+                        Timestamp: formatWeekTimestamp(state.Calendar.Year, week),
+                        Data: map[string]interface{}{
+                                "tools_produced": toolsProduced,
+                                "workshop":       b.Location,
+                        },
+                })</span>
+        }
+
+        <span class="cov0" title="0">return events</span>
+}
+
+// processConstruction handles building progress at construction sites.
+func processConstruction(week int, state *GameState, rng *rand.Rand) []Event <span class="cov0" title="0">{
+    var events []Event
+
+    for i := range state.Buildings </span><span class="cov0" title="0">{
+        b := &amp;state.Buildings[i]
+        if b.Type != "construction_site" </span><span class="cov0" title="0">{
+            continue</span>
+        }
+
+        <span class="cov0" title="0">if b.Metadata == nil </span><span class="cov0" title="0">{
+            b.Metadata = make(map[string]interface{})
+        }</span>
+
+        // Get current progress (0-100)
+        <span class="cov0" title="0">progress, _ := b.Metadata["progress"].(float64)
+        if progress &lt; 0 </span><span class="cov0" title="0">{
+            progress = 0
+        }</span>
+        <span class="cov0" title="0">if progress &gt;= 100 </span><span class="cov0" title="0">{
+            // Already completed
+            continue</span>
+        }
+
+        // Determine workers assigned
+        <span class="cov0" title="0">workerCount := len(b.Workers)
+        // Each worker contributes 1 progress per week (base)
+        workerContribution := float64(workerCount)
+
+        // Check for required materials: wood and stone
+        woodNeeded := 5
+        stoneNeeded := 3
+        woodAvailable := 0
+        stoneAvailable := 0
+        for _, res := range state.Resources </span><span class="cov0" title="0">{
+            if res.Type == "wood" </span><span class="cov0" title="0">{
+                woodAvailable += res.Quantity
+            }</span>
+            <span class="cov0" title="0">if res.Type == "stone" </span><span class="cov0" title="0">{
+                stoneAvailable += res.Quantity
+            }</span>
+        }
+
+        // If materials insufficient, reduce contribution
+        <span class="cov0" title="0">materialMultiplier := 1.0
+        if woodAvailable &lt; woodNeeded </span><span class="cov0" title="0">{
+            materialMultiplier *= 0.5
+        }</span>
+        <span class="cov0" title="0">if stoneAvailable &lt; stoneNeeded </span><span class="cov0" title="0">{
+            materialMultiplier *= 0.5
+        }</span>
+
+        // Consume materials if available
+        <span class="cov0" title="0">if woodAvailable &gt;= woodNeeded &amp;&amp; stoneAvailable &gt;= stoneNeeded </span><span class="cov0" title="0">{
+            // Consume wood
+            woodToConsume := woodNeeded
+            for j := range state.Resources </span><span class="cov0" title="0">{
+                if state.Resources[j].Type == "wood" &amp;&amp; woodToConsume &gt; 0 </span><span class="cov0" title="0">{
+                    if state.Resources[j].Quantity &lt;= woodToConsume </span><span class="cov0" title="0">{
+                        woodToConsume -= state.Resources[j].Quantity
+                        state.Resources[j].Quantity = 0
+                    }</span> else<span class="cov0" title="0"> {
+                        state.Resources[j].Quantity -= woodToConsume
+                        woodToConsume = 0
+                    }</span>
+                }
+            }
+            // Consume stone
+            <span class="cov0" title="0">stoneToConsume := stoneNeeded
+            for j := range state.Resources </span><span class="cov0" title="0">{
+                if state.Resources[j].Type == "stone" &amp;&amp; stoneToConsume &gt; 0 </span><span class="cov0" title="0">{
+                    if state.Resources[j].Quantity &lt;= stoneToConsume </span><span class="cov0" title="0">{
+                        stoneToConsume -= state.Resources[j].Quantity
+                        state.Resources[j].Quantity = 0
+                    }</span> else<span class="cov0" title="0"> {
+                        state.Resources[j].Quantity -= stoneToConsume
+                        stoneToConsume = 0
+                    }</span>
+                }
+            }
+            // Remove zero quantity resources
+            <span class="cov0" title="0">newResources := make([]Resource, 0, len(state.Resources))
+            for _, res := range state.Resources </span><span class="cov0" title="0">{
+                if res.Quantity &gt; 0 </span><span class="cov0" title="0">{
+                    newResources = append(newResources, res)
+                }</span>
+            }
+            <span class="cov0" title="0">state.Resources = newResources</span>
+        }
+
+        // Calculate progress increase
+        <span class="cov0" title="0">progressIncrease := workerContribution * materialMultiplier
+        progress += progressIncrease
+        if progress &gt; 100 </span><span class="cov0" title="0">{
+            progress = 100
+        }</span>
+        <span class="cov0" title="0">b.Metadata["progress"] = progress
+
+        // If construction completed, generate event
+        if progress &gt;= 100 </span><span class="cov0" title="0">{
+            events = append(events, Event{
+                ID:        generateEventID("construction-complete", week),
+                Type:      "construction",
+                Timestamp: formatWeekTimestamp(state.Calendar.Year, week),
+                Data: map[string]interface{}{
+                    "building": b.Location,
+                },
+            })
+            // Optionally change building type? For now, keep as construction_site
+        }</span>
+    }
+
+    <span class="cov0" title="0">return events</span>
+}
+</pre>
+		
+		<pre class="file" id="file3" style="display: none">package simulation
+
+import (
+        "encoding/base64"
+        "encoding/binary"
+        "encoding/json"
+        "math/rand"
+)
+
+// RNG is a deterministic random number generator.
+type RNG struct {
+        state uint64
+}
+
+// NewRNG creates a new RNG seeded with the given value.
+func NewRNG(seed int64) *RNG <span class="cov8" title="1">{
+        return &amp;RNG{state: uint64(seed)}
+}</span>
+
+// Uint64 returns a pseudo-random 64-bit value.
+func (r *RNG) Uint64() uint64 <span class="cov8" title="1">{
+        // 64-bit LCG constants from Knuth's MMIX
+        const (
+                mul = 6364136223846793005
+                inc = 1442695040888963407
+        )
+        r.state = r.state*mul + inc
+        return r.state
+}</span>
+
+// Intn returns a random integer in [0, n).
+func (r *RNG) Intn(n int) int <span class="cov0" title="0">{
+        if n &lt;= 0 </span><span class="cov0" title="0">{
+                panic("invalid argument to Intn")</span>
+        }
+        // Simple modulo with rejection to avoid bias for now
+        // In production, we'd implement a more robust method
+        <span class="cov0" title="0">return int(r.Uint64() % uint64(n))</span>
+}
+
+// Float64 returns a random float64 in [0.0, 1.0).
+func (r *RNG) Float64() float64 <span class="cov0" title="0">{
+        // Generate a 53-bit integer and divide by 2^53
+        // Use high 53 bits of a 64-bit value
+        bits := r.Uint64() &gt;&gt; 11 // 64 - 11 = 53 bits
+        const float53 = 1 &lt;&lt; 53
+        return float64(bits) / float53
+}</span>
+
+// Shuffle pseudo-randomizes the order of elements using the Fisher-Yates algorithm.
+func (r *RNG) Shuffle(n int, swap func(i, j int)) <span class="cov0" title="0">{
+        if n &lt; 0 </span><span class="cov0" title="0">{
+                panic("invalid argument to Shuffle")</span>
+        }
+        <span class="cov0" title="0">for i := n - 1; i &gt; 0; i-- </span><span class="cov0" title="0">{
+                j := r.Intn(i + 1)
+                swap(i, j)
+        }</span>
+}
+
+// MarshalBinary encodes the RNG state as a binary representation.
+func (r *RNG) MarshalBinary() ([]byte, error) <span class="cov0" title="0">{
+        var buf [8]byte
+        binary.LittleEndian.PutUint64(buf[:], r.state)
+        return buf[:], nil
+}</span>
+
+// UnmarshalBinary decodes the RNG state from binary representation.
+func (r *RNG) UnmarshalBinary(data []byte) error <span class="cov0" title="0">{
+        if len(data) != 8 </span><span class="cov0" title="0">{
+                return json.Unmarshal(data, &amp;r.state) // fallback for JSON compatibility
+        }</span>
+        <span class="cov0" title="0">r.state = binary.LittleEndian.Uint64(data)
+        return nil</span>
+}
+
+// MarshalJSON encodes the RNG state as a base64 string.
+func (r *RNG) MarshalJSON() ([]byte, error) <span class="cov0" title="0">{
+        data, err := r.MarshalBinary()
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        // Encode as base64 for JSON string
+        <span class="cov0" title="0">encoded := base64.StdEncoding.EncodeToString(data)
+        return json.Marshal(encoded)</span>
+}
+
+// UnmarshalJSON decodes the RNG state from a base64 string.
+func (r *RNG) UnmarshalJSON(data []byte) error <span class="cov0" title="0">{
+        var encoded string
+        if err := json.Unmarshal(data, &amp;encoded); err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        <span class="cov0" title="0">decoded, err := base64.StdEncoding.DecodeString(encoded)
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        <span class="cov0" title="0">return r.UnmarshalBinary(decoded)</span>
+}
+
+// State returns the current internal state (for testing).
+func (r *RNG) State() uint64 <span class="cov0" title="0">{
+        return r.state
+}</span>
+
+// randSource implements rand.Source64 using the underlying RNG.
+type randSource struct {
+        rng *RNG
+}
+
+func (s *randSource) Seed(seed int64) {<span class="cov0" title="0">
+        // Not needed because RNG manages its own state
+        // We could reset the RNG state, but for compatibility we ignore.
+}</span>
+
+func (s *randSource) Int63() int64 <span class="cov8" title="1">{
+        return int64(s.rng.Uint64() &gt;&gt; 1) // clear sign bit
+}</span>
+
+func (s *randSource) Uint64() uint64 <span class="cov0" title="0">{
+        return s.rng.Uint64()
+}</span>
+
+// Rand returns a *rand.Rand that uses this RNG as its source.
+// This allows the RNG to be used wherever *rand.Rand is expected.
+func (r *RNG) Rand() *rand.Rand <span class="cov8" title="1">{
+        return rand.New(&amp;randSource{rng: r})
+}</span>
+</pre>
+		
+		<pre class="file" id="file4" style="display: none">package simulation
+
+import "encoding/json"
+
+// SaveRNG encodes the RNG state as JSON bytes.
+func SaveRNG(rng *RNG) ([]byte, error) <span class="cov0" title="0">{
+        return json.Marshal(rng)
+}</span>
+
+// LoadRNG decodes RNG state from JSON bytes.
+func LoadRNG(data []byte) (*RNG, error) <span class="cov0" title="0">{
+        var rng RNG
+        if err := json.Unmarshal(data, &amp;rng); err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov0" title="0">return &amp;rng, nil</span>
+}
+
+// SaveRNGBinary encodes the RNG state as binary bytes.
+func SaveRNGBinary(rng *RNG) ([]byte, error) <span class="cov0" title="0">{
+        return rng.MarshalBinary()
+}</span>
+
+// LoadRNGBinary decodes RNG state from binary bytes.
+func LoadRNGBinary(data []byte) (*RNG, error) <span class="cov0" title="0">{
+        var rng RNG
+        if err := rng.UnmarshalBinary(data); err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov0" title="0">return &amp;rng, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file5" style="display: none">package simulation
+
+import (
+        "fmt"
+        "math/rand"
+)
+
+// SocialSystem implements the social simulation system.
+// It handles resident needs, skill development, relationships, and life events.
+type SocialSystem struct{}
+
+// NewSocialSystem creates a new social system.
+func NewSocialSystem() *SocialSystem <span class="cov8" title="1">{
+        return &amp;SocialSystem{}
+}</span>
+
+// Update processes one week of social simulation.
+// It updates resident needs, skills, relationships, and handles life events.
+func (s *SocialSystem) Update(week int, state *GameState, rng *rand.Rand) []Event <span class="cov8" title="1">{
+        var events []Event
+
+        // Update each resident
+        for i := range state.Residents </span><span class="cov8" title="1">{
+                s.updateResident(week, &amp;state.Residents[i], state, rng, &amp;events)
+        }</span>
+
+        // Handle relationship changes between residents
+        <span class="cov8" title="1">s.updateRelationships(state, rng, &amp;events)
+
+        // Process life events (births, deaths)
+        s.processLifeEvents(week, state, rng, &amp;events)
+
+        return events</span>
+}
+
+// updateResident updates a single resident's needs and skills.
+func (s *SocialSystem) updateResident(week int, resident *Resident, state *GameState, rng *rand.Rand, events *[]Event) <span class="cov8" title="1">{
+        // Ensure needs exist
+        if len(resident.Needs) == 0 </span><span class="cov8" title="1">{
+                s.initializeNeeds(resident)
+        }</span>
+
+        // Update needs based on work, shelter, food availability
+        <span class="cov8" title="1">s.updateNeeds(resident, state, rng)
+
+        // Improve skills through work experience
+        s.improveSkills(resident, rng)
+
+        // Age resident (1 week older)
+        resident.Age++</span>
+}
+
+// initializeNeeds sets up default needs for a resident.
+func (s *SocialSystem) initializeNeeds(resident *Resident) <span class="cov8" title="1">{
+        resident.Needs = []Need{
+                {ID: "hunger", Name: "Hunger", Level: 0.3},
+                {ID: "warmth", Name: "Warmth", Level: 0.5},
+                {ID: "happiness", Name: "Happiness", Level: 0.7},
+                {ID: "social", Name: "Social", Level: 0.4},
+        }
+}</span>
+
+// updateNeeds adjusts need levels based on current conditions.
+func (s *SocialSystem) updateNeeds(resident *Resident, state *GameState, rng *rand.Rand) <span class="cov8" title="1">{
+        for i := range resident.Needs </span><span class="cov8" title="1">{
+                need := &amp;resident.Needs[i]
+
+                // Basic need decay
+                decay := 0.01 + rng.Float64()*0.02
+                need.Level += decay
+
+                // Apply modifiers based on state
+                switch need.ID </span>{
+                case "hunger":<span class="cov8" title="1">
+                        // Food availability reduces hunger
+                        foodAvailable := s.getFoodAvailability(state)
+                        need.Level -= foodAvailable * 0.05</span>
+                case "warmth":<span class="cov8" title="1">
+                        // Temperature affects warmth
+                        temp := state.Environment.Temperature
+                        if temp &lt; 10 </span><span class="cov0" title="0">{
+                                need.Level += 0.03 // colder increases need
+                        }</span> else<span class="cov8" title="1"> if temp &gt; 25 </span><span class="cov0" title="0">{
+                                need.Level -= 0.02 // warmer reduces need
+                        }</span>
+                case "happiness":<span class="cov8" title="1">
+                        // Influenced by other needs and relationships
+                        avgNeed := s.averageNeedLevel(resident)
+                        relStrength := s.relationshipStrength(resident, state)
+                        need.Level += (0.5 - avgNeed) * 0.1
+                        need.Level += relStrength * 0.05</span>
+                case "social":<span class="cov8" title="1">
+                        // More relationships reduce social need
+                        relCount := len(resident.Relationships)
+                        need.Level -= float64(relCount) * 0.02</span>
+                }
+
+                // Clamp to [0, 1]
+                <span class="cov8" title="1">if need.Level &lt; 0 </span><span class="cov0" title="0">{
+                        need.Level = 0
+                }</span>
+                <span class="cov8" title="1">if need.Level &gt; 1 </span><span class="cov8" title="1">{
+                        need.Level = 1
+                }</span>
+        }
+}
+
+// getFoodAvailability estimates food availability from resources.
+func (s *SocialSystem) getFoodAvailability(state *GameState) float64 <span class="cov8" title="1">{
+        foodCount := 0
+        for _, r := range state.Resources </span><span class="cov0" title="0">{
+                if r.Type == "food" || r.Type == "grain" || r.Type == "meat" </span><span class="cov0" title="0">{
+                        foodCount += r.Quantity
+                }</span>
+        }
+        // Convert to per-resident availability
+        <span class="cov8" title="1">residentCount := len(state.Residents)
+        if residentCount == 0 </span><span class="cov0" title="0">{
+                return 1.0
+        }</span>
+        <span class="cov8" title="1">availability := float64(foodCount) / float64(residentCount*10)
+        if availability &gt; 1 </span><span class="cov0" title="0">{
+                return 1
+        }</span>
+        <span class="cov8" title="1">return availability</span>
+}
+
+// averageNeedLevel calculates average need level for a resident.
+func (s *SocialSystem) averageNeedLevel(resident *Resident) float64 <span class="cov8" title="1">{
+        if len(resident.Needs) == 0 </span><span class="cov0" title="0">{
+                return 0
+        }</span>
+        <span class="cov8" title="1">sum := 0.0
+        for _, n := range resident.Needs </span><span class="cov8" title="1">{
+                sum += n.Level
+        }</span>
+        <span class="cov8" title="1">return sum / float64(len(resident.Needs))</span>
+}
+
+// relationshipStrength calculates total relationship strength for a resident.
+func (s *SocialSystem) relationshipStrength(resident *Resident, state *GameState) float64 <span class="cov8" title="1">{
+        total := 0.0
+        for _, rel := range resident.Relationships </span><span class="cov0" title="0">{
+                total += rel.Strength
+        }</span>
+        <span class="cov8" title="1">return total</span>
+}
+
+// improveSkills increases skill levels based on work experience.
+func (s *SocialSystem) improveSkills(resident *Resident, rng *rand.Rand) <span class="cov8" title="1">{
+        for i := range resident.Skills </span><span class="cov8" title="1">{
+                skill := &amp;resident.Skills[i]
+
+                // Chance to improve each week
+                if rng.Float64() &lt; 0.1 </span><span class="cov8" title="1">{ // 10% chance per week
+                        skill.Level++
+                }</span>
+        }
+}
+
+// updateRelationships modifies relationships between residents.
+func (s *SocialSystem) updateRelationships(state *GameState, rng *rand.Rand, events *[]Event) <span class="cov8" title="1">{
+        // Simple random relationship formation
+        for i := range state.Residents </span><span class="cov8" title="1">{
+                for j := range state.Residents </span><span class="cov8" title="1">{
+                        if i &gt;= j </span><span class="cov8" title="1">{
+                                continue</span> // avoid duplicate pairs
+                        }
+
+                        <span class="cov8" title="1">r1 := &amp;state.Residents[i]
+                        r2 := &amp;state.Residents[j]
+
+                        // Check if relationship already exists
+                        exists := false
+                        for _, rel := range r1.Relationships </span><span class="cov0" title="0">{
+                                if rel.To == r2.ID </span><span class="cov0" title="0">{
+                                        exists = true
+                                        break</span>
+                                }
+                        }
+
+                        <span class="cov8" title="1">if !exists &amp;&amp; rng.Float64() &lt; 0.05 </span><span class="cov0" title="0">{ // 5% chance to form relationship
+                                rel := Relationship{
+                                        From:     r1.ID,
+                                        To:       r2.ID,
+                                        Type:     "friend",
+                                        Strength: 0.1 + rng.Float64()*0.2,
+                                }
+                                r1.Relationships = append(r1.Relationships, rel)
+                                // Add reciprocal relationship
+                                r2.Relationships = append(r2.Relationships, Relationship{
+                                        From:     r2.ID,
+                                        To:       r1.ID,
+                                        Type:     "friend",
+                                        Strength: rel.Strength,
+                                })
+                        }</span>
+                }
+        }
+}
+
+// processLifeEvents handles births, aging, and deaths.
+func (s *SocialSystem) processLifeEvents(week int, state *GameState, rng *rand.Rand, events *[]Event) <span class="cov8" title="1">{
+        // Aging is handled in updateResident
+
+        // Death from old age or critical needs
+        for i := range state.Residents </span><span class="cov8" title="1">{
+                resident := &amp;state.Residents[i]
+
+                // Death from old age
+                deathProbability := 0.0
+                if resident.Age &gt; 80 </span><span class="cov8" title="1">{
+                        deathProbability = float64(resident.Age-80) * 0.001 // 0.1% per year over 80
+                }</span>
+
+                // Death from critical hunger
+                <span class="cov8" title="1">for _, need := range resident.Needs </span><span class="cov8" title="1">{
+                        if need.ID == "hunger" &amp;&amp; need.Level &gt; 0.9 </span><span class="cov8" title="1">{
+                                deathProbability += 0.01
+                        }</span>
+                }
+
+                <span class="cov8" title="1">if rng.Float64() &lt; deathProbability </span><span class="cov8" title="1">{
+                        // Record death
+                        *events = append(*events, Event{
+                                Type: "death",
+                                Data: map[string]interface{}{
+                                        "resident_id": resident.ID,
+                                        "cause":       "natural",
+                                },
+                        })
+                        // Remove resident (simplified: mark for removal)
+                        // In real implementation, would need to handle removal from slice
+                }</span>
+        }
+
+        // Births based on relationships
+        // Simplified: couples produce children
+        <span class="cov8" title="1">for i := range state.Residents </span><span class="cov8" title="1">{
+                for j := range state.Residents </span><span class="cov8" title="1">{
+                        if i &gt;= j </span><span class="cov8" title="1">{
+                                continue</span>
+                        }
+                        <span class="cov8" title="1">r1 := &amp;state.Residents[i]
+                        r2 := &amp;state.Residents[j]
+
+                        // Check if they have strong relationship
+                        strongRel := false
+                        for _, rel := range r1.Relationships </span><span class="cov0" title="0">{
+                                if rel.To == r2.ID &amp;&amp; rel.Type == "spouse" &amp;&amp; rel.Strength &gt; 0.5 </span><span class="cov0" title="0">{
+                                        strongRel = true
+                                        break</span>
+                                }
+                        }
+
+                        <span class="cov8" title="1">if strongRel &amp;&amp; rng.Float64() &lt; 0.001 </span><span class="cov0" title="0">{ // 0.1% chance per week
+                                // Create new resident
+                                baby := Resident{
+                                        ID:   fmt.Sprintf("baby-%d-%d", week, rng.Int()),
+                                        Name: "Child",
+                                        Age:  0,
+                                }
+                                state.AddResident(baby)
+
+                                *events = append(*events, Event{
+                                        Type: "birth",
+                                        Data: map[string]interface{}{
+                                                "parents": []string{r1.ID, r2.ID},
+                                                "baby_id": baby.ID,
+                                        },
+                                })
+                        }</span>
+                }
+        }
+}
+</pre>
+		
+		<pre class="file" id="file6" style="display: none">package simulation
+
+// GameState represents the entire simulation state.
+type GameState struct {
+        ID          string      `json:"id"`
+        Version     int         `json:"version"`
+        Seed        int64       `json:"seed"`
+        RNG         *RNG        `json:"rng"`
+        Calendar    Calendar    `json:"calendar"`
+        Village     Village     `json:"village"`
+        Residents   []Resident  `json:"residents"`
+        Resources   []Resource  `json:"resources"`
+        Buildings   []Building  `json:"buildings"`
+        History     []Event     `json:"history"`
+        Policies    []Policy    `json:"policies"`
+        Environment Environment `json:"environment"`
+}
+
+// NewGameState creates a new GameState with default values.
+func NewGameState(id string, seed int64) *GameState <span class="cov8" title="1">{
+        return &amp;GameState{
+                ID:      id,
+                Version: 1,
+                Seed:    seed,
+                RNG:     NewRNG(seed),
+                Calendar: Calendar{
+                        Year:  1,
+                        Month: 1,
+                        Week:  1,
+                        Day:   1,
+                },
+                Village: Village{
+                        ID:      id + "-village",
+                        Name:    "New Village",
+                        Region:  "temperate",
+                        Climate: "mild",
+                },
+                Residents: []Resident{},
+                Resources: []Resource{},
+                Buildings: []Building{},
+                History:   []Event{},
+                Policies:  []Policy{},
+                Environment: Environment{
+                        Temperature:        15.0, // mild temperature
+                        Rainfall:           10.0, // mm per week
+                        Season:             "spring",
+                        SoilFertility:      0.7,
+                        ForestHealth:       0.8,
+                        MineQuality:        0.6,
+                        WildlifePopulation: 0.5,
+                },
+        }
+}</span>
+
+// AddResident adds a resident to the state.
+func (gs *GameState) AddResident(r Resident) <span class="cov8" title="1">{
+        gs.Residents = append(gs.Residents, r)
+}</span>
+
+// AddResource adds a resource to the state.
+func (gs *GameState) AddResource(r Resource) <span class="cov0" title="0">{
+        gs.Resources = append(gs.Resources, r)
+}</span>
+
+// AddBuilding adds a building to the state.
+func (gs *GameState) AddBuilding(b Building) <span class="cov0" title="0">{
+        gs.Buildings = append(gs.Buildings, b)
+}</span>
+
+// AddEvent records an event in history.
+func (gs *GameState) AddEvent(e Event) <span class="cov0" title="0">{
+        gs.History = append(gs.History, e)
+}</span>
+
+// AddPolicy adds a policy.
+func (gs *GameState) AddPolicy(p Policy) <span class="cov0" title="0">{
+        gs.Policies = append(gs.Policies, p)
+}</span>
+</pre>
+		
+		<pre class="file" id="file7" style="display: none">package simulation
+
+// TurnProcessor orchestrates weekly turn processing for all systems.
+type TurnProcessor struct {
+        systems map[SystemType]System
+        order   []SystemType
+}
+
+// NewTurnProcessor creates a new TurnProcessor with built-in systems.
+func NewTurnProcessor() *TurnProcessor <span class="cov0" title="0">{
+        tp := &amp;TurnProcessor{
+                systems: make(map[SystemType]System),
+                order:   SystemOrder,
+        }
+        // Initialize built-in systems (to be implemented in future workstreams)
+        // For now, they are nil; will be replaced with actual implementations.
+        return tp
+}</span>
+
+// RegisterSystem adds or replaces a system for the given type.
+func (tp *TurnProcessor) RegisterSystem(typ SystemType, sys System) <span class="cov0" title="0">{
+        tp.systems[typ] = sys
+}</span>
+
+// ProcessWeek advances the simulation by one week, updating all systems in order.
+// Returns the events generated during the week.
+func (tp *TurnProcessor) ProcessWeek(state *GameState) []Event <span class="cov0" title="0">{
+        var allEvents []Event
+        week := state.Calendar.Week
+
+        for _, typ := range tp.order </span><span class="cov0" title="0">{
+                sys, ok := tp.systems[typ]
+                if !ok || sys == nil </span><span class="cov0" title="0">{
+                        // System not yet implemented; skip silently
+                        continue</span>
+                }
+                // Create a *rand.Rand from the state's RNG for this system's update.
+                // Each system gets its own Rand derived from the RNG state,
+                // ensuring deterministic progression across systems.
+                <span class="cov0" title="0">rng := state.RNG.Rand()
+                events := sys.Update(week, state, rng)
+                allEvents = append(allEvents, events...)</span>
+        }
+
+        // Add all events to game state history
+        <span class="cov0" title="0">for _, ev := range allEvents </span><span class="cov0" title="0">{
+                state.AddEvent(ev)
+        }</span>
+
+        // Advance calendar by one week
+        <span class="cov0" title="0">state.Calendar.Week++
+        if state.Calendar.Week &gt; 52 </span><span class="cov0" title="0">{
+                state.Calendar.Week = 1
+                state.Calendar.Month++
+                if state.Calendar.Month &gt; 12 </span><span class="cov0" title="0">{
+                        state.Calendar.Month = 1
+                        state.Calendar.Year++
+                }</span>
+        }
+
+        <span class="cov0" title="0">return allEvents</span>
+}
+</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>
