@@ -1,0 +1,10 @@
+<h3>Seasonal Indicators</h3>
+<div *ngIf="season$ | async as season; else loading">
+  <p><strong>Current Season:</strong> {{ season.name }}</p>
+  <p><strong>Weather:</strong> {{ season.weather }}</p>
+  <p><strong>Agricultural Calendar:</strong></p>
+  <ul>
+    <li *ngFor="let event of season.agriculturalCalendar">{{ event }}</li>
+  </ul>
+</div>
+<ng-template #loading>Loading season data...</ng-template>

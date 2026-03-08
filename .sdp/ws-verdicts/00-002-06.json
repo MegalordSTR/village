@@ -1,0 +1,78 @@
+{
+  "ws_id": "00-002-06",
+  "feature_id": "F002",
+  "verdict": "PASS",
+  "commit": "607660cfe00cd40dc44c4b07a1c16acb7b33f358",
+  "quality_gates": {
+    "tests_pass": true,
+    "lint_clean": true,
+    "coverage_pct": 84.6,
+    "coverage_threshold": 80,
+    "max_file_loc": 80,
+    "build_ok": true,
+    "vet_ok": true
+  },
+  "ac_evidence": [
+    {
+      "ac": "Resource exhaustion: mines have finite ore, depletion reduces yield over time",
+      "met": true,
+      "evidence": "TestScarcityMineDepletion, TestScarcityMineYieldModifier in internal/economy/scarcity_test.go"
+    },
+    {
+      "ac": "Forest health: logging reduces forest health, regrowth over years (10% per year)",
+      "met": true,
+      "evidence": "TestScarcityForestRegrowth, TestScarcityForestLogging in internal/economy/scarcity_test.go"
+    },
+    {
+      "ac": "Scarcity modifiers affect production yield (rich mine: 1.5x, depleted: 0.3x)",
+      "met": true,
+      "evidence": "TestScarcityMineYieldModifier in internal/economy/scarcity_test.go"
+    },
+    {
+      "ac": "Substitution system: define alternative materials for recipes (stone instead of wood for buildings)",
+      "met": true,
+      "evidence": "TestScarcitySubstitution in internal/economy/scarcity_test.go"
+    },
+    {
+      "ac": "Efficiency penalties for substitutions (stone building: 2x construction time, 0.8x durability)",
+      "met": true,
+      "evidence": "TestScarcitySubstitution validates TimeMultiplier=2.0, QualityMultiplier=0.8"
+    },
+    {
+      "ac": "Scavenging: find limited resources in environment (abandoned mines, fallen trees)",
+      "met": true,
+      "evidence": "TestScarcityScavenge in internal/economy/scarcity_test.go"
+    },
+    {
+      "ac": "Strategic trade-offs: use scarce resource now vs. save for future critical need",
+      "met": true,
+      "evidence": "TestScarcityStrategicTradeOff in internal/economy/scarcity_test.go"
+    },
+    {
+      "ac": "Resource discovery events (new mine vein, abundant forest patch)",
+      "met": true,
+      "evidence": "TestScarcityResourceDiscovery in internal/economy/scarcity_test.go"
+    },
+    {
+      "ac": "Integration with production system to apply scarcity modifiers",
+      "met": true,
+      "evidence": "TestScarcityApplyScarcityModifier in internal/economy/scarcity_test.go"
+    },
+    {
+      "ac": "Unit tests covering exhaustion, substitution, and scarcity scenarios",
+      "met": true,
+      "evidence": "All TestScarcity* functions in internal/economy/scarcity_test.go"
+    },
+    {
+      "ac": "`go build ./internal/economy` passes",
+      "met": true,
+      "evidence": "Command executed successfully"
+    },
+    {
+      "ac": "`go test ./internal/economy -run TestScarcity` passes with ≥80% coverage",
+      "met": true,
+      "evidence": "Coverage 84.6% achieved"
+    }
+  ],
+  "existing_work_summary": "Found existing resource definitions, recipes, production chains, quality, inventory, spoilage, agriculture, seasons, weather, craftsmanship, skills. No scarcity or substitution logic present."
+}

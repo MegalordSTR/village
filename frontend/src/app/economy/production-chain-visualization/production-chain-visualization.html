@@ -1,0 +1,9 @@
+<h3>Production Chains</h3>
+<div *ngIf="chains$ | async as chains; else loading">
+  <ul>
+    <li *ngFor="let chain of chains">
+      {{ chain.name }} (Inputs: {{ chain.inputs.length }}, Outputs: {{ chain.outputs.length }})
+    </li>
+  </ul>
+</div>
+<ng-template #loading>Loading production chains...</ng-template>
