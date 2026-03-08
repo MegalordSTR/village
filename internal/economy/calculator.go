@@ -49,6 +49,12 @@ func computeOutputQuality(inputs []ResourceRequirement, consumed map[ResourceTyp
 	for _, req := range inputs {
 		avail := available[req.Type]
 		qual := QualityToFloat(avail.Quality)
+		// Special materials provide a quality bonus
+		bonus := MaterialQualityBonus(req.Type)
+		qual += bonus
+		if qual > 1.0 {
+			qual = 1.0
+		}
 		// weight by consumed quantity (which is proportional to requirement)
 		totalQual += qual * consumed[req.Type]
 		totalQuant += consumed[req.Type]
