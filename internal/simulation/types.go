@@ -12,11 +12,12 @@ type Resident struct {
 
 // Building represents a constructed building in the village.
 type Building struct {
-	Type       string       `json:"type"`
-	Location   string       `json:"location"`
-	Level      int          `json:"level"`
-	Workers    []string     `json:"workers"` // resident IDs
-	Production []Production `json:"production"`
+	Type       string                 `json:"type"`
+	Location   string                 `json:"location"`
+	Level      int                    `json:"level"`
+	Workers    []string               `json:"workers"` // resident IDs
+	Production []Production           `json:"production"`
+	Metadata   map[string]interface{} `json:"metadata,omitempty"`
 }
 
 // Resource represents a material resource.
