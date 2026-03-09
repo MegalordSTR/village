@@ -1,6 +1,6 @@
 # Village Simulation Makefile
 
-.PHONY: build test run clean dev coverage vet fmt lint lint-fix build-backend build-frontend deploy-dry-run deploy check-go-version
+.PHONY: build test run clean dev coverage vet fmt lint lint-fix build-backend build-frontend deploy-dry-run deploy check-go-version test-integration bench test-race test-all
 
 # Default target
 all: build
@@ -20,6 +20,21 @@ build-frontend:
 test:
 	@echo "Running tests..."
 	go test ./...
+
+test-integration:
+	@echo "Running integration tests..."
+	go test ./internal/integration/... -v
+
+bench:
+	@echo "Running benchmarks..."
+	go test ./... -bench=. -benchmem
+
+test-race:
+	@echo "Running tests with race detection..."
+	go test ./... -race
+
+test-all: test test-race test-integration bench
+	@echo "All tests completed."
 
 run: build
 	@echo "Starting village simulation..."
