@@ -1,0 +1,24 @@
+SCOPE: .github/workflows/deploy.yml, scripts/deploy.sh, README.md, docs/deployment.md, Makefile, Dockerfile, docker-compose.yml
+
+RISK MAP: 
+1. Health Check Reliability (P1): Frontend health check uses curl not installed; inconsistent retry logic
+2. Production Configuration Loading (P1): .env.production file checked but not loaded
+3. Rollback & Recovery (P2): No rollback mechanism; no image versioning
+
+EVIDENCE: 
+- Frontend health check uses curl not installed (docker-compose.yml:51)
+- Production environment file not loaded (scripts/deploy.sh:28-31)
+- No rollback mechanism (scripts/deploy.sh:35, deploy.yml:73)
+- Inconsistent health check retry logic (deploy.yml:76 vs deploy.sh:57-74)
+- Default PostgreSQL credentials still weak (docker-compose.yml:5-7)
+- Potential brief downtime (docker-compose up --build -d)
+- No Docker image versioning
+
+SEVERITY: 
+P1: Frontend health check missing curl, Production environment file not loaded
+P2: No rollback mechanism, Default credentials still weak  
+P3: Inconsistent retry logic, Brief downtime, No image versioning
+
+VERDICT: FAIL - P1 reliability issues remain (frontend health check, production configuration loading)
+
+FINDINGS_CREATED: village-00d, village-0hv, village-hqs, village-tii, village-2nf, village-c9q, village-jty

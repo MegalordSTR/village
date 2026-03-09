@@ -1,6 +1,6 @@
 # Village Simulation Makefile
 
-.PHONY: build test run clean dev coverage vet fmt build-backend build-frontend deploy-dry-run deploy
+.PHONY: build test run clean dev coverage vet fmt build-backend build-frontend deploy-dry-run deploy check-go-version
 
 # Default target
 all: build
@@ -84,3 +84,6 @@ health:
 migrate:
 	@echo "Running database migrations (if any)..."
 	# TODO: Add migration command when available
+
+check-go-version:
+	@go version | grep -q "go1.25" || (echo "Error: Go version mismatch. Expected 1.25.x" && exit 1)
