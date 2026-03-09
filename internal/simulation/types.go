@@ -1,5 +1,9 @@
 package simulation
 
+import (
+	"github.com/vano44/village/internal/economy"
+)
+
 // Resident represents a village inhabitant.
 type Resident struct {
 	ID            string         `json:"id"`
@@ -22,9 +26,9 @@ type Building struct {
 
 // Resource represents a material resource.
 type Resource struct {
-	Type     string  `json:"type"`
-	Quantity int     `json:"quantity"`
-	Quality  float64 `json:"quality"`
+	Type     economy.ResourceType `json:"type"`
+	Quantity int                  `json:"quantity"`
+	Quality  float64              `json:"quality"`
 }
 
 // Skill represents a resident's ability.
@@ -51,9 +55,9 @@ type Relationship struct {
 
 // Production represents a building's output.
 type Production struct {
-	ResourceType string  `json:"resource_type"`
-	Amount       int     `json:"amount"`
-	Quality      float64 `json:"quality"`
+	ResourceType economy.ResourceType `json:"resource_type"`
+	Amount       int                  `json:"amount"`
+	Quality      float64              `json:"quality"`
 }
 
 // Calendar tracks game time.
@@ -75,7 +79,7 @@ type Village struct {
 // Event represents a historical event.
 type Event struct {
 	ID        string                 `json:"id"`
-	Type      string                 `json:"type"`
+	Type      economy.ResourceType   `json:"type"`
 	Timestamp string                 `json:"timestamp"`
 	Data      map[string]interface{} `json:"data"`
 }

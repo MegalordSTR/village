@@ -1,6 +1,7 @@
 package simulation
 
 import (
+	"github.com/vano44/village/internal/economy"
 	"math/rand"
 	"testing"
 )
@@ -76,13 +77,13 @@ func TestProductionAgriculture(t *testing.T) {
 	// Ensure at least one wheat resource exists
 	wheatFound := false
 	for _, res := range state.Resources {
-		if res.Type == "wheat" {
+		if res.Type == economy.ResourceGrain {
 			wheatFound = true
 			break
 		}
 	}
 	if !wheatFound {
-		t.Error("expected wheat resource to be produced")
+		t.Error("expected grain resource to be produced")
 	}
 }
 
@@ -110,13 +111,13 @@ func TestProductionMining(t *testing.T) {
 	// Expect ore resources added
 	oreFound := false
 	for _, res := range state.Resources {
-		if res.Type == "ore" {
+		if res.Type == economy.ResourceIronOre {
 			oreFound = true
 			break
 		}
 	}
 	if !oreFound {
-		t.Error("expected ore resource to be produced by mining")
+		t.Error("expected iron ore resource to be produced by mining")
 	}
 	if len(state.Resources) <= initialResources {
 		t.Errorf("expected resources to increase, got %d (initial %d)",
@@ -129,7 +130,7 @@ func TestProductionCrafting(t *testing.T) {
 	state := NewGameState("test", 456)
 
 	// Add ore resources
-	state.AddResource(Resource{Type: "ore", Quantity: 10, Quality: 1.0})
+	state.AddResource(Resource{Type: economy.ResourceIronOre, Quantity: 10, Quality: 1.0})
 	// Add a workshop building
 	state.AddBuilding(Building{
 		Type:       "workshop",
@@ -146,18 +147,18 @@ func TestProductionCrafting(t *testing.T) {
 	// Expect tool resources added
 	toolFound := false
 	for _, res := range state.Resources {
-		if res.Type == "tool" {
+		if res.Type == economy.ResourceTools {
 			toolFound = true
 			break
 		}
 	}
 	if !toolFound {
-		t.Error("expected tool resource to be produced by crafting")
+		t.Error("expected tools resource to be produced by crafting")
 	}
 	// Ore should be consumed (10 - 2 = 8 remaining)
 	oreCount := 0
 	for _, res := range state.Resources {
-		if res.Type == "ore" {
+		if res.Type == economy.ResourceIronOre {
 			oreCount += res.Quantity
 		}
 	}
@@ -171,8 +172,8 @@ func TestProductionConstruction(t *testing.T) {
 	state := NewGameState("test", 789)
 
 	// Add required materials
-	state.AddResource(Resource{Type: "wood", Quantity: 10, Quality: 1.0})
-	state.AddResource(Resource{Type: "stone", Quantity: 10, Quality: 1.0})
+	state.AddResource(Resource{Type: economy.ResourceWood, Quantity: 10, Quality: 1.0})
+	state.AddResource(Resource{Type: economy.ResourceStone, Quantity: 10, Quality: 1.0})
 	// Add a construction site with workers
 	state.AddBuilding(Building{
 		Type:       "construction_site",
@@ -243,10 +244,10 @@ func TestProductionDeterministicAcrossAllSystems(t *testing.T) {
 	quant1 := make(map[string]int)
 	quant2 := make(map[string]int)
 	for _, res := range state1.Resources {
-		quant1[res.Type] += res.Quantity
+		quant1[string(res.Type)] += res.Quantity
 	}
 	for _, res := range state2.Resources {
-		quant2[res.Type] += res.Quantity
+		quant2[string(res.Type)] += res.Quantity
 	}
 	for typ, q1 := range quant1 {
 		q2 := quant2[typ]
@@ -478,10 +479,10 @@ func TestProductionDeterministicWithEnvironment(t *testing.T) {
 	quant1 := make(map[string]int)
 	quant2 := make(map[string]int)
 	for _, res := range state1.Resources {
-		quant1[res.Type] += res.Quantity
+		quant1[string(res.Type)] += res.Quantity
 	}
 	for _, res := range state2.Resources {
-		quant2[res.Type] += res.Quantity
+		quant2[string(res.Type)] += res.Quantity
 	}
 	for typ, q1 := range quant1 {
 		q2 := quant2[typ]

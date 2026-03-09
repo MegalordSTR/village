@@ -1,6 +1,7 @@
 package simulation
 
 import (
+	"github.com/vano44/village/internal/economy"
 	"math/rand"
 )
 
@@ -52,7 +53,7 @@ var eventDefinitions = []eventDef{
 		},
 		apply: func(state *GameState, week int, rng *rand.Rand) Event {
 			// Reduce food resource by 10%
-			adjustResource(state, "food", -0.1)
+			adjustResource(state, economy.ResourceGrain, -0.1)
 			return Event{
 				ID:        generateEventID("disease", week),
 				Type:      "disease_outbreak",
@@ -77,7 +78,7 @@ var eventDefinitions = []eventDef{
 		},
 		apply: func(state *GameState, week int, rng *rand.Rand) Event {
 			// Increase food resource by 20%
-			adjustResource(state, "food", 0.2)
+			adjustResource(state, economy.ResourceGrain, 0.2)
 			return Event{
 				ID:        generateEventID("good-harvest", week),
 				Type:      "good_harvest",
@@ -101,7 +102,7 @@ var eventDefinitions = []eventDef{
 		},
 		apply: func(state *GameState, week int, rng *rand.Rand) Event {
 			// Decrease food resource by 15%
-			adjustResource(state, "food", -0.15)
+			adjustResource(state, economy.ResourceGrain, -0.15)
 			return Event{
 				ID:        generateEventID("bad-harvest", week),
 				Type:      "bad_harvest",
@@ -145,7 +146,7 @@ var eventDefinitions = []eventDef{
 
 // adjustResource modifies a resource quantity by a percentage (positive or negative).
 // If the resource doesn't exist, it does nothing.
-func adjustResource(state *GameState, resourceType string, percent float64) {
+func adjustResource(state *GameState, resourceType economy.ResourceType, percent float64) {
 	for i := range state.Resources {
 		if state.Resources[i].Type == resourceType {
 			change := int(float64(state.Resources[i].Quantity) * percent)

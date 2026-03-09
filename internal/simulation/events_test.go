@@ -1,6 +1,7 @@
 package simulation
 
 import (
+	"github.com/vano44/village/internal/economy"
 	"testing"
 )
 
@@ -68,7 +69,7 @@ func TestEventDiseaseOutbreak(t *testing.T) {
 	state.Environment.Season = "winter"
 	state.Environment.ForestHealth = 0.2
 	// Add food resource
-	state.AddResource(Resource{Type: "food", Quantity: 100, Quality: 1.0})
+	state.AddResource(Resource{Type: economy.ResourceGrain, Quantity: 100, Quality: 1.0})
 	initialFood := state.Resources[0].Quantity
 	events := evt.Update(1, state, state.RNG.Rand())
 	if len(events) == 0 {
@@ -90,7 +91,7 @@ func TestEventGoodHarvest(t *testing.T) {
 	state := NewGameState("test-good-harvest", 222)
 	state.Environment.Season = "autumn"
 	state.Environment.SoilFertility = 0.9
-	state.AddResource(Resource{Type: "food", Quantity: 100, Quality: 1.0})
+	state.AddResource(Resource{Type: economy.ResourceGrain, Quantity: 100, Quality: 1.0})
 	initialFood := state.Resources[0].Quantity
 	events := evt.Update(1, state, state.RNG.Rand())
 	if len(events) == 0 {
@@ -111,7 +112,7 @@ func TestEventBadHarvest(t *testing.T) {
 	state := NewGameState("test-bad-harvest", 333)
 	state.Environment.Season = "summer"
 	state.Environment.Rainfall = 3.0 // low rainfall
-	state.AddResource(Resource{Type: "food", Quantity: 100, Quality: 1.0})
+	state.AddResource(Resource{Type: economy.ResourceGrain, Quantity: 100, Quality: 1.0})
 	initialFood := state.Resources[0].Quantity
 	events := evt.Update(1, state, state.RNG.Rand())
 	if len(events) == 0 {

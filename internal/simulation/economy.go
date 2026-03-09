@@ -139,7 +139,7 @@ func (e *EconomicSystem) consumeMaintenanceResources(week int, state *GameState,
 	}
 
 	// Helper to consume a specific resource type
-	consumeResource := func(resType string, amount int) int {
+	consumeResource := func(resType economy.ResourceType, amount int) int {
 		consumed := 0
 		for i := range state.Resources {
 			if state.Resources[i].Type == resType && state.Resources[i].Quantity > 0 {
@@ -163,9 +163,9 @@ func (e *EconomicSystem) consumeMaintenanceResources(week int, state *GameState,
 		return consumed
 	}
 
-	woodConsumed := consumeResource("wood", requiredWood)
-	stoneConsumed := consumeResource("stone", requiredStone)
-	toolsConsumed := consumeResource("tool", requiredTools) // note: resource type "tool" not "tools"
+	woodConsumed := consumeResource(economy.ResourceWood, requiredWood)
+	stoneConsumed := consumeResource(economy.ResourceStone, requiredStone)
+	toolsConsumed := consumeResource(economy.ResourceTools, requiredTools) // note: resource type "tool" not "tools"
 
 	if woodConsumed > 0 || stoneConsumed > 0 || toolsConsumed > 0 {
 		events = append(events, Event{

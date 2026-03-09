@@ -1,6 +1,7 @@
 package simulation
 
 import (
+	"github.com/vano44/village/internal/economy"
 	"math/rand"
 )
 
@@ -65,7 +66,7 @@ func processAgriculture(week int, state *GameState, rng *rand.Rand) []Event {
 			yield := calculateYield(state.Environment, b.Level, rng)
 			// Add resource
 			state.AddResource(Resource{
-				Type:     b.Metadata["crop_type"].(string),
+				Type:     StringToResourceType(b.Metadata["crop_type"].(string)),
 				Quantity: yield,
 				Quality:  1.0, // TODO: vary based on conditions
 			})
@@ -219,7 +220,7 @@ func processMining(week int, state *GameState, rng *rand.Rand) []Event {
 		if extraction > 0 {
 			// Add resource (simplified: always produce "ore")
 			state.AddResource(Resource{
-				Type:     "ore",
+				Type:     economy.ResourceIronOre,
 				Quantity: int(extraction),
 				Quality:  qualityMultiplier,
 			})
@@ -259,7 +260,7 @@ func processCrafting(week int, state *GameState, rng *rand.Rand) []Event {
 		// Check if we have enough ore
 		oreAvailable := 0
 		for _, res := range state.Resources {
-			if res.Type == "ore" {
+			if res.Type == economy.ResourceIronOre {
 				oreAvailable += res.Quantity
 			}
 		}
@@ -271,7 +272,7 @@ func processCrafting(week int, state *GameState, rng *rand.Rand) []Event {
 		// Consume ore
 		oreToConsume := requiredOre
 		for j := range state.Resources {
-			if state.Resources[j].Type == "ore" && oreToConsume > 0 {
+			if state.Resources[j].Type == economy.ResourceIronOre && oreToConsume > 0 {
 				if state.Resources[j].Quantity <= oreToConsume {
 					oreToConsume -= state.Resources[j].Quantity
 					state.Resources[j].Quantity = 0
@@ -293,7 +294,7 @@ func processCrafting(week int, state *GameState, rng *rand.Rand) []Event {
 		// Produce tool
 		toolsProduced := 1 * b.Level
 		state.AddResource(Resource{
-			Type:     "tool",
+			Type:     economy.ResourceTools,
 			Quantity: toolsProduced,
 			Quality:  1.0,
 		})
@@ -347,10 +348,10 @@ func processConstruction(week int, state *GameState, rng *rand.Rand) []Event { /
 		woodAvailable := 0
 		stoneAvailable := 0
 		for _, res := range state.Resources {
-			if res.Type == "wood" {
+			if res.Type == economy.ResourceWood {
 				woodAvailable += res.Quantity
 			}
-			if res.Type == "stone" {
+			if res.Type == economy.ResourceStone {
 				stoneAvailable += res.Quantity
 			}
 		}
@@ -369,7 +370,7 @@ func processConstruction(week int, state *GameState, rng *rand.Rand) []Event { /
 			// Consume wood
 			woodToConsume := woodNeeded
 			for j := range state.Resources {
-				if state.Resources[j].Type == "wood" && woodToConsume > 0 {
+				if state.Resources[j].Type == economy.ResourceWood && woodToConsume > 0 {
 					if state.Resources[j].Quantity <= woodToConsume {
 						woodToConsume -= state.Resources[j].Quantity
 						state.Resources[j].Quantity = 0
@@ -382,7 +383,7 @@ func processConstruction(week int, state *GameState, rng *rand.Rand) []Event { /
 			// Consume stone
 			stoneToConsume := stoneNeeded
 			for j := range state.Resources {
-				if state.Resources[j].Type == "stone" && stoneToConsume > 0 {
+				if state.Resources[j].Type == economy.ResourceStone && stoneToConsume > 0 {
 					if state.Resources[j].Quantity <= stoneToConsume {
 						stoneToConsume -= state.Resources[j].Quantity
 						state.Resources[j].Quantity = 0
