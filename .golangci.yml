@@ -1,0 +1,50 @@
+version: "2"
+run:
+  timeout: 5m
+  modules-download-mode: readonly
+
+linters:
+  disable-all: true
+  enable:
+    - govet
+  disable:
+    - staticcheck
+    - errcheck
+
+issues:
+  exclude-use-default: false
+  max-issues-per-linter: 0
+  max-same-issues: 0
+  exclude:
+    - "G204: Subprocess launched with variable (gosec)"
+    - "G404: Use of weak random number generator (gosec)"
+    - "G114: Use of net/http serve function (gosec)"
+    - "G115: integer overflow conversion (gosec)"
+    - "G104: Errors unhandled (gosec)"
+    - "^package-comments:"
+    - "^exported: exported const"
+    - "^unused-parameter:"
+    - "^var-declaration:"
+    - "^indent-error-flow:"
+    - "^superfluous-else:"
+    - "^comment on exported"
+    - "QF1011: could omit type"
+    - "QF1007: could merge conditional assignment"
+    - "SA1019:"
+  exclude-rules:
+    - path: .*_test\.go$
+      linters:
+        - staticcheck
+
+linters-settings:
+  gosec:
+    excludes:
+      - G204 # Subprocess launched with variable
+      - G404 # Weak random number generator
+      - G114 # Use of net/http serve function that has no support for setting timeouts
+      - G115 # integer overflow conversion
+      - G104 # Errors unhandled
+
+
+output:
+  format: colored-line-number

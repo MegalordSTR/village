@@ -11,6 +11,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 ### Fixed
 
+## [0.1.1] - 2026-03-09
+
+### Added
+- **Go Modernization (F006)**: Comprehensive Go tooling and infrastructure updates with 5 workstreams:
+  - Update Go Version and CI Configuration: Consistent Go 1.25.7 across CI/CD, Docker, and go.mod
+  - Add Modern Go Linting Tools: Integrated golangci-lint with automated CI workflow
+  - Code Audit for Modern Go Best Practices: Analysis of error handling, generics, concurrency, API design
+  - Update Development Tools and Security Audit: Node.js LTS updates, npm dependency security fixes
+  - Integration Tests and Build Verification: Go version matrix testing, race detection, benchmarks
+
+### Changed
+- Updated GitHub Actions workflows for Go 1.25 and improved linting
+- Enhanced security scanning and dependency management
+- Improved test infrastructure with integration tests and benchmarks
+
+### Fixed
+- None in this release
+
 ## [0.1.0] - 2026-03-08
 
 ### Added
@@ -32,5 +50,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - None in this release
 
-[Unreleased]: https://github.com/MegalordSTR/village/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/MegalordSTR/village/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/MegalordSTR/village/releases/tag/v0.1.1
 [0.1.0]: https://github.com/MegalordSTR/village/releases/tag/v0.1.0

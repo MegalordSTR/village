@@ -58,6 +58,25 @@ make test
 # Code quality
 make vet
 make fmt
+make lint
+
+## Linting
+
+This project uses [golangci-lint](https://golangci-lint.run/) for static analysis. To install:
+
+```bash
+# Install golangci-lint (requires Go 1.25+)
+curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.60.0
+```
+
+Run linting:
+
+```bash
+make lint          # Run all linters
+make lint-fix      # Auto-fix fixable issues
+```
+
+Configuration is in `.golangci.yml`. The CI pipeline runs linting on every push and pull request.
 ```
 
 #### Frontend
@@ -140,6 +159,16 @@ Services include health check endpoints:
 - Frontend: `http://localhost:80/health`
 
 Use `make health` to check all services.
+
+## Security Practices
+
+- **Dependency Scanning**: Automated vulnerability scanning runs on every push and weekly via GitHub Actions. Check the Security tab for findings.
+- **npm Audit**: Frontend dependencies are audited using `npm audit`. Run `cd frontend && npm audit` locally.
+- **Container Security**: Docker images are scanned with Trivy for known vulnerabilities.
+- **Update Procedures**:
+  - Regularly update npm packages: `cd frontend && npm outdated` to check, `npm update` to update within version ranges.
+  - Update Docker base images: Review `Dockerfile` and `docker-compose.yml` for latest Alpine tags.
+  - Review security scanning results in GitHub Actions.
 
 ## Database Migrations
 

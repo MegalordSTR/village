@@ -108,7 +108,7 @@ func CalculateProduction(ctx ProductionContext) ProductionResult {
 	var numBatches int
 	if maxBatches <= 0 {
 		// Partial production: compute fractional batch size.
-		var minRatio float64 = 1.0
+		var minRatio = 1.0
 		for _, req := range recipe.Inputs {
 			avail, ok := ctx.InputResources[req.Type]
 			if !ok {

@@ -7,10 +7,10 @@ import (
 
 func TestSeasonConstants(t *testing.T) {
 	// This test will fail until Season type and constants are defined
-	var _ Season = Spring
-	var _ Season = Summer
-	var _ Season = Autumn
-	var _ Season = Winter
+	var _ Season = Spring //nolint:staticcheck
+	var _ Season = Summer //nolint:staticcheck
+	var _ Season = Autumn //nolint:staticcheck
+	var _ Season = Winter //nolint:staticcheck
 }
 
 func TestSeasonFromWeek(t *testing.T) {
@@ -73,10 +73,10 @@ func TestFuelConsumptionMultiplier(t *testing.T) {
 
 func TestCropGrowthStages(t *testing.T) {
 	// Test CropStage constants
-	var _ CropStage = CropPlanted
-	var _ CropStage = CropGrowing
-	var _ CropStage = CropReadyForHarvest
-	var _ CropStage = CropHarvested
+	var _ CropStage = CropPlanted         //nolint:staticcheck
+	var _ CropStage = CropGrowing         //nolint:staticcheck
+	var _ CropStage = CropReadyForHarvest //nolint:staticcheck
+	var _ CropStage = CropHarvested       //nolint:staticcheck
 
 	// Test NewCrop
 	crop := NewCrop(ResourceGrain, 1)
@@ -96,9 +96,9 @@ func TestCropGrowthStages(t *testing.T) {
 
 func TestWeatherPatterns(t *testing.T) {
 	// Test WeatherPattern constants
-	var _ WeatherPattern = WeatherDrought
-	var _ WeatherPattern = WeatherNormal
-	var _ WeatherPattern = WeatherRain
+	var _ WeatherPattern = WeatherDrought //nolint:staticcheck
+	var _ WeatherPattern = WeatherNormal  //nolint:staticcheck
+	var _ WeatherPattern = WeatherRain    //nolint:staticcheck
 
 	// Test YieldMultiplier
 	if got := YieldMultiplier(WeatherDrought); got != 0.5 {

@@ -138,7 +138,7 @@ func calculateYield(env Environment, farmLevel int, rng *rand.Rand) int {
 	fertilityMultiplier := env.SoilFertility
 
 	// Rainfall multiplier: optimal 10-20mm gives 1.0, otherwise less
-	rainMultiplier := 1.0
+	var rainMultiplier float64
 	if env.Rainfall >= 10 && env.Rainfall <= 20 {
 		rainMultiplier = 1.2
 	} else if env.Rainfall > 20 {

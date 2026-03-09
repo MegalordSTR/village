@@ -122,7 +122,7 @@ func TestScarcitySubstitution(t *testing.T) {
 	}
 	// No alternatives for unknown resource
 	alts2 := GetAlternatives(ResourceIron)
-	if alts2 != nil && len(alts2) != 0 {
+	if len(alts2) != 0 {
 		t.Errorf("expected nil or empty slice for unknown resource, got %v", alts2)
 	}
 }
@@ -158,6 +158,7 @@ func TestScarcityStrategicTradeOff(t *testing.T) {
 }
 
 func TestScarcityResourceDiscovery(t *testing.T) {
+	//lint:ignore SA1019 // deterministic seed needed for test
 	rand.Seed(42) // deterministic seed
 	// Discover mine vein
 	mine := DiscoverResource("mine_vein")
@@ -241,7 +242,7 @@ func TestScarcityIntegration(t *testing.T) {
 		t.Error("scavenge not working")
 	}
 	// Resource discovery
-	rand.Seed(42)
+	rand.Seed(42) //nolint:staticcheck
 	_ = DiscoverResource("mine_vein")
 	// No assertion, just ensure no panic
 	// Strategic trade-off

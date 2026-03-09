@@ -22,3 +22,6 @@
 {"id":"evt-1772998647083547436","type":"plan","timestamp":"2026-03-08T19:37:27Z","ws_id":"00-002-06","prev_hash":"8f88ca9d229d76c91a8c7028702355f54a01f287fa293f66b19a41a7148d13fb","data":{"action":"activate","scope_files":[]}}
 {"id":"evt-1773000016377706494","type":"plan","timestamp":"2026-03-08T20:00:16Z","ws_id":"00-002-07","prev_hash":"f39a31dd2dab6c8aadb4033f0fa7f128d58e3ba33f1fea459fbac2f8a1f5e284","data":{"action":"activate","scope_files":[]}}
 {"id":"evt-1773001093559108232","type":"plan","timestamp":"2026-03-08T20:18:13Z","ws_id":"00-002-08","prev_hash":"a43bade8cf9e07bb43f9b5911b0e8a418ddafdc7a20eee4af542f4adee0f0265","data":{"action":"activate","scope_files":[]}}
+{"id":"evt-1773004897977764034","type":"plan","timestamp":"2026-03-08T21:21:37Z","ws_id":"00-005-01","prev_hash":"d718d14a4fd155034f45d4d5683c7e744eec2ac7be995f31c1fa029d2a13d418","data":{"action":"activate","scope_files":[]}}
+{"id":"evt-1773047967775007078","type":"plan","timestamp":"2026-03-09T09:19:27Z","ws_id":"00-006-01","prev_hash":"1cc7cf855dbd9ee925790d0583ff293c45d2e92fa9f1807ac7c17a18078c96d0","data":{"action":"activate","scope_files":[]}}
+{"id":"evt-1773049341613467336","type":"plan","timestamp":"2026-03-09T09:42:21Z","ws_id":"00-006-02","prev_hash":"e2c72c3dbd18206e49440399c95827f027daabc301ac3c926633dd881acbd9ed","data":{"action":"activate","scope_files":[]}}
