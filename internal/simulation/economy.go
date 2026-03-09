@@ -1,12 +1,17 @@
 package simulation
 
-import "math/rand"
+import (
+	"github.com/vano44/village/internal/economy"
+	"math/rand"
+)
 
 // EconomicSystem implements the economic simulation system.
 // It handles resource consumption, inventory management, trade, and wealth distribution.
 type EconomicSystem struct {
 	// wealth tracks each resident's wealth (optional)
 	wealth map[string]float64
+	// storage registry for capacity and spoilage
+	storage *economy.StorageRegistry
 }
 
 // NewEconomicSystem creates a new economic system.

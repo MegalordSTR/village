@@ -1,7 +1,6 @@
 package economy
 
 import (
-	"github.com/vano44/village/internal/simulation"
 	"testing"
 )
 
@@ -208,30 +207,5 @@ func TestStoragePreparationIndicators(t *testing.T) {
 	// Other seasons return nil
 	if RecommendedStockpiles(Spring) != nil {
 		t.Error("RecommendedStockpiles(Spring) should return nil")
-	}
-}
-
-func TestIntegrationWithEnvironment(t *testing.T) {
-	env := &simulation.Environment{
-		Season: "spring",
-	}
-	got := SeasonFromEnvironment(env)
-	if got != Spring {
-		t.Errorf("SeasonFromEnvironment(spring) = %v, want Spring", got)
-	}
-	env.Season = "summer"
-	got = SeasonFromEnvironment(env)
-	if got != Summer {
-		t.Errorf("SeasonFromEnvironment(summer) = %v, want Summer", got)
-	}
-	env.Season = "autumn"
-	got = SeasonFromEnvironment(env)
-	if got != Autumn {
-		t.Errorf("SeasonFromEnvironment(autumn) = %v, want Autumn", got)
-	}
-	env.Season = "winter"
-	got = SeasonFromEnvironment(env)
-	if got != Winter {
-		t.Errorf("SeasonFromEnvironment(winter) = %v, want Winter", got)
 	}
 }

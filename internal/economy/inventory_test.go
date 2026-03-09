@@ -1,7 +1,6 @@
 package economy
 
 import (
-	"github.com/vano44/village/internal/simulation"
 	"testing"
 )
 
@@ -183,46 +182,5 @@ func TestInventory_CheckAlerts(t *testing.T) {
 		if alert.Location != "" {
 			t.Errorf("Alert location should be empty for global total, got %s", alert.Location)
 		}
-	}
-}
-
-func TestInventory_GameStateIntegration(t *testing.T) {
-	inv := NewInventory()
-	// Create simulation resources
-	simResources := []simulation.Resource{
-		{Type: "grain", Quantity: 20, Quality: 0.25},
-		{Type: "wood", Quantity: 15, Quality: 0.5},
-	}
-	err := LoadInventoryFromGameState(inv, simResources, "default")
-	if err != nil {
-		t.Fatalf("LoadInventoryFromGameState failed: %v", err)
-	}
-	// Check inventory has those resources
-	grainAvail := inv.GetAvailable("default", ResourceGrain)
-	if grainAvail != 20.0 {
-		t.Errorf("Expected 20.0 grain, got %f", grainAvail)
-	}
-	woodAvail := inv.GetAvailable("default", ResourceWood)
-	if woodAvail != 15.0 {
-		t.Errorf("Expected 15.0 wood, got %f", woodAvail)
-	}
-	// Export back
-	exported := ExportInventoryToGameState(inv)
-	if len(exported) != 2 {
-		t.Errorf("Expected 2 exported resources, got %d", len(exported))
-	}
-	// Check types and quantities
-	// Order not guaranteed
-	grainFound, woodFound := false, false
-	for _, sr := range exported {
-		if sr.Type == "grain" && sr.Quantity == 20 {
-			grainFound = true
-		}
-		if sr.Type == "wood" && sr.Quantity == 15 {
-			woodFound = true
-		}
-	}
-	if !grainFound || !woodFound {
-		t.Error("Exported resources missing expected items")
 	}
 }

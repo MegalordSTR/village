@@ -1,7 +1,6 @@
 package economy
 
 import (
-	"github.com/vano44/village/internal/simulation"
 	"math"
 )
 
@@ -89,33 +88,4 @@ func FloatToQuality(f float64) QualityTier {
 		rounded = 4
 	}
 	return QualityTier(rounded)
-}
-
-// ToSimulationResource converts an economy Resource to a simulation Resource.
-// Note: simulation.Resource does not have Location, Produced, Value fields.
-// Quality is mapped to float64 range [0,1].
-func (r Resource) ToSimulationResource() simulation.Resource {
-	return simulation.Resource{
-		Type:     string(r.Type),
-		Quantity: int(math.Round(r.Quantity)),
-		Quality:  QualityToFloat(r.Quality),
-	}
-}
-
-// FromSimulationResource converts a simulation Resource to an economy Resource.
-// Uses default values for missing fields (Location empty, Produced zero, Value base value).
-func FromSimulationResource(sr simulation.Resource) Resource {
-	rt := ResourceType(sr.Type)
-	if !IsValidType(rt) {
-		// Fallback to grain if unknown
-		rt = ResourceGrain
-	}
-	return Resource{
-		Type:     rt,
-		Quantity: float64(sr.Quantity),
-		Quality:  FloatToQuality(sr.Quality),
-		Location: "",
-		Produced: GameDate{},
-		Value:    BaseValue(rt),
-	}
 }

@@ -1,7 +1,6 @@
 package economy
 
 import (
-	"github.com/vano44/village/internal/simulation"
 	"testing"
 )
 
@@ -321,57 +320,5 @@ func TestFloatToQuality(t *testing.T) {
 	}
 	if FloatToQuality(1.5) != QualityMasterwork {
 		t.Errorf(">1.0 should clamp to QualityMasterwork")
-	}
-}
-
-func TestConversionToSimulationResource(t *testing.T) {
-	r := Resource{
-		Type:     ResourceIron,
-		Quantity: 7.3,
-		Quality:  QualityGood,
-		Location: "smithy",
-		Produced: GameDate{Year: 1, Week: 10},
-		Value:    8.0,
-	}
-	sr := r.ToSimulationResource()
-	if sr.Type != "iron" {
-		t.Errorf("Type mismatch: got %s, want iron", sr.Type)
-	}
-	if sr.Quantity != 7 {
-		t.Errorf("Quantity mismatch: got %d, want 7", sr.Quantity)
-	}
-	if sr.Quality != 0.5 {
-		t.Errorf("Quality mismatch: got %f, want 0.5", sr.Quality)
-	}
-}
-
-func TestConversionFromSimulationResource(t *testing.T) {
-	sr := simulation.Resource{
-		Type:     "wood",
-		Quantity: 15,
-		Quality:  0.25, // Normal
-	}
-	r := FromSimulationResource(sr)
-	if r.Type != ResourceWood {
-		t.Errorf("Type mismatch: got %v, want ResourceWood", r.Type)
-	}
-	if r.Quantity != 15.0 {
-		t.Errorf("Quantity mismatch: got %f, want 15.0", r.Quantity)
-	}
-	if r.Quality != QualityNormal {
-		t.Errorf("Quality mismatch: got %v, want QualityNormal", r.Quality)
-	}
-	if r.Value != BaseValue(ResourceWood) {
-		t.Errorf("Value mismatch: got %f, want %f", r.Value, BaseValue(ResourceWood))
-	}
-	// Test unknown type fallback
-	srUnknown := simulation.Resource{
-		Type:     "unknown",
-		Quantity: 5,
-		Quality:  0.0,
-	}
-	r2 := FromSimulationResource(srUnknown)
-	if r2.Type != ResourceGrain {
-		t.Errorf("Unknown type should fallback to grain, got %v", r2.Type)
 	}
 }

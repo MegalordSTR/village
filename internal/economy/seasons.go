@@ -1,9 +1,5 @@
 package economy
 
-import (
-	"github.com/vano44/village/internal/simulation"
-)
-
 // Season represents a season of the year.
 type Season string
 
@@ -98,21 +94,5 @@ func RecommendedStockpiles(season Season) map[ResourceType]float64 {
 		ResourceGrain:      100.0,
 		ResourceVegetables: 50.0,
 		ResourceWood:       200.0,
-	}
-}
-
-// SeasonFromEnvironment converts simulation.Environment's Season string to Season type.
-func SeasonFromEnvironment(env *simulation.Environment) Season {
-	switch env.Season {
-	case "spring":
-		return Spring
-	case "summer":
-		return Summer
-	case "autumn":
-		return Autumn
-	case "winter":
-		return Winter
-	default:
-		return Spring
 	}
 }

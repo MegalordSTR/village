@@ -1,19 +1,24 @@
 package simulation
 
+import (
+	"github.com/vano44/village/internal/economy"
+)
+
 // GameState represents the entire simulation state.
 type GameState struct {
-	ID          string      `json:"id"`
-	Version     int         `json:"version"`
-	Seed        int64       `json:"seed"`
-	RNG         *RNG        `json:"rng"`
-	Calendar    Calendar    `json:"calendar"`
-	Village     Village     `json:"village"`
-	Residents   []Resident  `json:"residents"`
-	Resources   []Resource  `json:"resources"`
-	Buildings   []Building  `json:"buildings"`
-	History     []Event     `json:"history"`
-	Policies    []Policy    `json:"policies"`
-	Environment Environment `json:"environment"`
+	ID          string             `json:"id"`
+	Version     int                `json:"version"`
+	Seed        int64              `json:"seed"`
+	RNG         *RNG               `json:"rng"`
+	Calendar    Calendar           `json:"calendar"`
+	Village     Village            `json:"village"`
+	Residents   []Resident         `json:"residents"`
+	Resources   []Resource         `json:"resources"`
+	Buildings   []Building         `json:"buildings"`
+	History     []Event            `json:"history"`
+	Policies    []Policy           `json:"policies"`
+	Environment Environment        `json:"environment"`
+	Inventory   *economy.Inventory `json:"-"`
 }
 
 // NewGameState creates a new GameState with default values.
@@ -75,4 +80,24 @@ func (gs *GameState) AddEvent(e Event) {
 // AddPolicy adds a policy.
 func (gs *GameState) AddPolicy(p Policy) {
 	gs.Policies = append(gs.Policies, p)
+}
+
+// SyncInventory ensures Inventory is populated from Resources.
+// If Inventory is nil, a new Inventory is created and resources are loaded.
+// If StorageRegistry is needed, it must be attached separately.
+func (gs *GameState) SyncInventory() {
+	if gs.Inventory == nil {
+		gs.Inventory = economy.NewInventory()
+		// Load existing resources into inventory at default location "global"
+		LoadInventoryFromGameState(gs.Inventory, gs.Resources, "global")
+	}
+}
+
+// SyncResources updates the Resources slice from Inventory.
+// This should be called after inventory modifications to keep Resources in sync.
+func (gs *GameState) SyncResources() {
+	if gs.Inventory == nil {
+		return
+	}
+	gs.Resources = ExportInventoryToGameState(gs.Inventory)
 }

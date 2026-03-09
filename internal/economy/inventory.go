@@ -2,7 +2,6 @@ package economy
 
 import (
 	"errors"
-	"github.com/vano44/village/internal/simulation"
 )
 
 // Inventory manages resources across storage locations.
@@ -151,25 +150,13 @@ func (inv *Inventory) TransferResource(src, dst string, rt ResourceType, quantit
 	return removed, nil
 }
 
-// LoadInventoryFromGameState imports simulation resources into inventory, assigning them to defaultLocation.
-func LoadInventoryFromGameState(inv *Inventory, resources []simulation.Resource, defaultLocation string) error {
-	for _, sr := range resources {
-		r := FromSimulationResource(sr)
-		r.Location = defaultLocation
-		if err := inv.AddResource(defaultLocation, r); err != nil {
-			return err
-		}
+// ResourcesMap returns a copy of the internal resources map.
+// The map keys are location IDs, values are slices of resources stored there.
+func (inv *Inventory) ResourcesMap() map[string][]Resource {
+	// Return a shallow copy to avoid external mutation of the map reference
+	copy := make(map[string][]Resource, len(inv.resources))
+	for k, v := range inv.resources {
+		copy[k] = append([]Resource{}, v...)
 	}
-	return nil
-}
-
-// ExportInventoryToGameState exports all inventory resources as simulation resources (location information lost).
-func ExportInventoryToGameState(inv *Inventory) []simulation.Resource {
-	var out []simulation.Resource
-	for _, list := range inv.resources {
-		for _, r := range list {
-			out = append(out, r.ToSimulationResource())
-		}
-	}
-	return out
+	return copy
 }
