@@ -11,6 +11,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 ### Fixed
 
+## [0.1.2] - 2026-03-09
+
+### Added
+- **Go Modernization (F006) - Final Workstream**: Enforce mandatory linters and fix violations across codebase
+  - Integrated `govet`, `staticcheck`, `gosimple`, `unused`, `stylecheck` linters
+  - Fixed all linter violations across production code
+  - Added mandatory linter enforcement in CI pipeline
+
+### Changed
+- Updated `.golangci.yml` configuration with stricter linter settings
+- Improved code quality with TODO comments and documentation
+
+### Fixed
+- None in this release
+
 ## [0.1.1] - 2026-03-09
 
 ### Added
@@ -50,6 +65,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - None in this release
 
-[Unreleased]: https://github.com/MegalordSTR/village/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/MegalordSTR/village/compare/v0.1.2...HEAD
+[0.1.2]: https://github.com/MegalordSTR/village/releases/tag/v0.1.2
 [0.1.1]: https://github.com/MegalordSTR/village/releases/tag/v0.1.1
 [0.1.0]: https://github.com/MegalordSTR/village/releases/tag/v0.1.0
