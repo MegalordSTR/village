@@ -65,6 +65,13 @@ func (gs *GameState) AddResident(r Resident) {
 // AddResource adds a resource to the state.
 func (gs *GameState) AddResource(r Resource) {
 	gs.Resources = append(gs.Resources, r)
+	// If inventory exists, add the resource there as well (at default "global" location)
+	if gs.Inventory != nil {
+		er := ToEconomyResource(r)
+		er.Location = "global"
+		// Ignore error for now; in production we might want to handle it
+		_ = gs.Inventory.AddResource("global", er)
+	}
 }
 
 // AddBuilding adds a building to the state.
