@@ -227,8 +227,12 @@ func TestSocialFoodAvailability(t *testing.T) {
 	state.AddResident(Resident{ID: "r1", Name: "Hungry", Age: 30})
 
 	// Add some food resources
-	state.AddResource(Resource{Type: "food", Quantity: 100, Quality: 1.0})
-	state.AddResource(Resource{Type: "grain", Quantity: 50, Quality: 0.8})
+	if err := state.AddResource(Resource{Type: "food", Quantity: 100, Quality: 1.0}); err != nil {
+		t.Fatal(err)
+	}
+	if err := state.AddResource(Resource{Type: "grain", Quantity: 50, Quality: 0.8}); err != nil {
+		t.Fatal(err)
+	}
 
 	// Run update
 	_ = soc.Update(1, state, state.RNG.Rand())

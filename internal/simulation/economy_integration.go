@@ -61,6 +61,21 @@ func StringToResourceType(s string) economy.ResourceType {
 	}
 }
 
+// IsKnownType returns true if the string is either a valid economy.ResourceType
+// or a known legacy string that can be mapped.
+func IsKnownType(s string) bool {
+	rt := economy.ResourceType(s)
+	if economy.IsValidType(rt) {
+		return true
+	}
+	// Check legacy mapping
+	switch s {
+	case "food", "ore", "tool", "wheat", "gold", "meat", "wood", "stone", "iron", "flour", "bread", "planks", "cloth", "wool", "vegetables", "iron_ore", "tools", "furniture", "weapons", "clothing":
+		return true
+	}
+	return false
+}
+
 // CalendarToGameDate converts simulation Calendar to economy GameDate.
 func CalendarToGameDate(cal Calendar) economy.GameDate {
 	return economy.GameDate{
@@ -137,8 +152,7 @@ func AddProducedResource(state *GameState, building *Building, rt economy.Resour
 		return state.Inventory.AddResource(building.Location, er)
 	}
 	// Fallback to legacy Resources slice
-	state.AddResource(FromEconomyResource(er))
-	return nil
+	return state.AddResource(FromEconomyResource(er))
 }
 
 // ConsumeResourceFromState consumes up to the requested amount of a resource type.

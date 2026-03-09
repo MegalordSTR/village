@@ -130,7 +130,9 @@ func TestProductionCrafting(t *testing.T) {
 	state := NewGameState("test", 456)
 
 	// Add ore resources
-	state.AddResource(Resource{Type: economy.ResourceIronOre, Quantity: 10, Quality: 1.0})
+	if err := state.AddResource(Resource{Type: economy.ResourceIronOre, Quantity: 10, Quality: 1.0}); err != nil {
+		t.Fatalf("AddResource failed: %v", err)
+	}
 	// Add a workshop building
 	state.AddBuilding(Building{
 		Type:       "workshop",
@@ -172,8 +174,12 @@ func TestProductionConstruction(t *testing.T) {
 	state := NewGameState("test", 789)
 
 	// Add required materials
-	state.AddResource(Resource{Type: economy.ResourceWood, Quantity: 10, Quality: 1.0})
-	state.AddResource(Resource{Type: economy.ResourceStone, Quantity: 10, Quality: 1.0})
+	if err := state.AddResource(Resource{Type: economy.ResourceWood, Quantity: 10, Quality: 1.0}); err != nil {
+		t.Fatalf("AddResource failed: %v", err)
+	}
+	if err := state.AddResource(Resource{Type: economy.ResourceStone, Quantity: 10, Quality: 1.0}); err != nil {
+		t.Fatalf("AddResource failed: %v", err)
+	}
 	// Add a construction site with workers
 	state.AddBuilding(Building{
 		Type:       "construction_site",
@@ -222,12 +228,24 @@ func TestProductionDeterministicAcrossAllSystems(t *testing.T) {
 		state2.AddBuilding(b)
 	}
 	// Add some resources
-	state1.AddResource(Resource{Type: "ore", Quantity: 20, Quality: 1.0})
-	state1.AddResource(Resource{Type: "wood", Quantity: 20, Quality: 1.0})
-	state1.AddResource(Resource{Type: "stone", Quantity: 20, Quality: 1.0})
-	state2.AddResource(Resource{Type: "ore", Quantity: 20, Quality: 1.0})
-	state2.AddResource(Resource{Type: "wood", Quantity: 20, Quality: 1.0})
-	state2.AddResource(Resource{Type: "stone", Quantity: 20, Quality: 1.0})
+	if err := state1.AddResource(Resource{Type: "ore", Quantity: 20, Quality: 1.0}); err != nil {
+		t.Fatalf("AddResource failed: %v", err)
+	}
+	if err := state1.AddResource(Resource{Type: "wood", Quantity: 20, Quality: 1.0}); err != nil {
+		t.Fatalf("AddResource failed: %v", err)
+	}
+	if err := state1.AddResource(Resource{Type: "stone", Quantity: 20, Quality: 1.0}); err != nil {
+		t.Fatalf("AddResource failed: %v", err)
+	}
+	if err := state2.AddResource(Resource{Type: "ore", Quantity: 20, Quality: 1.0}); err != nil {
+		t.Fatalf("AddResource failed: %v", err)
+	}
+	if err := state2.AddResource(Resource{Type: "wood", Quantity: 20, Quality: 1.0}); err != nil {
+		t.Fatalf("AddResource failed: %v", err)
+	}
+	if err := state2.AddResource(Resource{Type: "stone", Quantity: 20, Quality: 1.0}); err != nil {
+		t.Fatalf("AddResource failed: %v", err)
+	}
 
 	// Run 4 weeks
 	for week := 1; week <= 4; week++ {
@@ -400,9 +418,15 @@ func TestProductionIntegrationWithEnvironment(t *testing.T) {
 	state.AddBuilding(Building{Type: "workshop", Location: "ws1", Level: 1})
 	state.AddBuilding(Building{Type: "construction_site", Location: "site1", Level: 1, Workers: []string{"w1"}})
 	// Add some resources
-	state.AddResource(Resource{Type: "ore", Quantity: 20, Quality: 1.0})
-	state.AddResource(Resource{Type: "wood", Quantity: 20, Quality: 1.0})
-	state.AddResource(Resource{Type: "stone", Quantity: 20, Quality: 1.0})
+	if err := state.AddResource(Resource{Type: "ore", Quantity: 20, Quality: 1.0}); err != nil {
+		t.Fatalf("AddResource failed: %v", err)
+	}
+	if err := state.AddResource(Resource{Type: "wood", Quantity: 20, Quality: 1.0}); err != nil {
+		t.Fatalf("AddResource failed: %v", err)
+	}
+	if err := state.AddResource(Resource{Type: "stone", Quantity: 20, Quality: 1.0}); err != nil {
+		t.Fatalf("AddResource failed: %v", err)
+	}
 
 	envSys := NewEnvironmentSystem()
 	prodSys := NewProductionSystem()
@@ -447,8 +471,12 @@ func TestProductionDeterministicWithEnvironment(t *testing.T) {
 		{Type: "stone", Quantity: 30, Quality: 1.0},
 	}
 	for _, r := range resources {
-		state1.AddResource(r)
-		state2.AddResource(r)
+		if err := state1.AddResource(r); err != nil {
+			t.Fatal(err)
+		}
+		if err := state2.AddResource(r); err != nil {
+			t.Fatal(err)
+		}
 	}
 
 	env1 := NewEnvironmentSystem()
@@ -687,9 +715,15 @@ func TestProductionTurnProcessor(t *testing.T) {
 	state := NewGameState("turn-test", 12345)
 	// Add some buildings and resources
 	state.AddBuilding(Building{Type: "farm", Location: "f1", Level: 1})
-	state.AddResource(Resource{Type: "ore", Quantity: 10, Quality: 1.0})
-	state.AddResource(Resource{Type: "wood", Quantity: 10, Quality: 1.0})
-	state.AddResource(Resource{Type: "stone", Quantity: 10, Quality: 1.0})
+	if err := state.AddResource(Resource{Type: "ore", Quantity: 10, Quality: 1.0}); err != nil {
+		t.Fatal(err)
+	}
+	if err := state.AddResource(Resource{Type: "wood", Quantity: 10, Quality: 1.0}); err != nil {
+		t.Fatal(err)
+	}
+	if err := state.AddResource(Resource{Type: "stone", Quantity: 10, Quality: 1.0}); err != nil {
+		t.Fatal(err)
+	}
 
 	// Process a week
 	events := tp.ProcessWeek(state)

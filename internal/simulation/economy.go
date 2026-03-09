@@ -16,8 +16,17 @@ type EconomicSystem struct {
 
 // NewEconomicSystem creates a new economic system.
 func NewEconomicSystem() *EconomicSystem {
+	storage := economy.NewStorageRegistry()
+	// Add a default outdoor pile for global storage
+	storage.AddBuilding(&economy.StorageBuilding{
+		ID:      "global",
+		Type:    economy.StorageGranary,
+		Level:   1,
+		Quality: economy.StorageQualityGood,
+	})
 	return &EconomicSystem{
-		wealth: make(map[string]float64),
+		wealth:  make(map[string]float64),
+		storage: storage,
 	}
 }
 
@@ -57,44 +66,75 @@ func (e *EconomicSystem) consumeResourcesByResidents(week int, state *GameState,
 		return events
 	}
 
-	// Calculate total food needed
-	foodNeeded := len(state.Residents) // each resident needs 1 food per week
-	// Adjust based on hunger need? For now simple.
+	// Ensure inventory exists and is synced
+	state.SyncInventory()
 
-	// Find food resources
-	foodAvailable := 0
-	foodIndex := -1
-	for i, r := range state.Resources {
-		if r.Type == "food" {
-			foodAvailable = r.Quantity
-			foodIndex = i
+	// Food priority: bread > vegetables > grain
+	foodTypes := []economy.ResourceType{economy.ResourceBread, economy.ResourceVegetables, economy.ResourceGrain}
+	foodNeeded := len(state.Residents)
+	consumed := make(map[economy.ResourceType]int)
+
+	// Try to consume from inventory in priority order
+	for _, rt := range foodTypes {
+		if foodNeeded <= 0 {
 			break
 		}
-	}
-
-	// Determine how much to consume
-	consumeAmount := foodNeeded
-	if consumeAmount > foodAvailable {
-		consumeAmount = foodAvailable
-	}
-
-	// Consume
-	if foodIndex >= 0 && consumeAmount > 0 {
-		state.Resources[foodIndex].Quantity -= consumeAmount
-		// Remove resource if quantity zero
-		if state.Resources[foodIndex].Quantity <= 0 {
-			// Remove from slice
-			state.Resources = append(state.Resources[:foodIndex], state.Resources[foodIndex+1:]...)
+		// Remove as much as possible from inventory at "global" location
+		removed, err := state.Inventory.RemoveResource("global", rt, float64(foodNeeded))
+		if err != nil {
+			// Ignore error (e.g., resource not present)
+			continue
 		}
+		if removed > 0 {
+			consumed[rt] = int(removed)
+			foodNeeded -= int(removed)
+		}
+	}
 
-		// Generate consumption event
+	// If we still need food after checking inventory, fall back to legacy Resources slice
+	if foodNeeded > 0 && state.Resources != nil {
+		// This should rarely happen if inventory is synced, but keep for backward compatibility
+		for i := range state.Resources {
+			if state.Resources[i].Type == "food" {
+				available := state.Resources[i].Quantity
+				take := foodNeeded
+				if take > available {
+					take = available
+				}
+				state.Resources[i].Quantity -= take
+				consumed[economy.ResourceGrain] = consumed[economy.ResourceGrain] + take // treat generic "food" as grain
+				foodNeeded -= take
+				if state.Resources[i].Quantity <= 0 {
+					// Remove zero quantity resource
+					state.Resources = append(state.Resources[:i], state.Resources[i+1:]...)
+				}
+				break
+			}
+		}
+	}
+
+	// After inventory modifications, sync Resources slice for any remaining legacy code
+	state.SyncResources()
+
+	// Generate consumption event
+	totalConsumed := 0
+	for _, amount := range consumed {
+		totalConsumed += amount
+	}
+	if totalConsumed > 0 {
+		// Convert map to simple map[string]interface{} for event data
+		consumedData := make(map[string]int)
+		for rt, amount := range consumed {
+			consumedData[string(rt)] = amount
+		}
 		events = append(events, Event{
 			ID:        generateEventID("consumption", week),
 			Type:      "consumption",
 			Timestamp: formatWeekTimestamp(state.Calendar.Year, week),
 			Data: map[string]interface{}{
-				"food_consumed": consumeAmount,
+				"food_consumed": totalConsumed,
 				"residents":     len(state.Residents),
+				"breakdown":     consumedData,
 			},
 		})
 	}
@@ -108,6 +148,9 @@ func (e *EconomicSystem) consumeMaintenanceResources(week int, state *GameState,
 	if len(state.Buildings) == 0 {
 		return events
 	}
+
+	// Ensure inventory exists and is synced
+	state.SyncInventory()
 
 	// Maintenance requirements per building type per level
 	type maintenanceReq struct {
@@ -138,34 +181,31 @@ func (e *EconomicSystem) consumeMaintenanceResources(week int, state *GameState,
 		requiredTools += req.tools * b.Level
 	}
 
-	// Helper to consume a specific resource type
-	consumeResource := func(resType economy.ResourceType, amount int) int {
-		consumed := 0
-		for i := range state.Resources {
-			if state.Resources[i].Type == resType && state.Resources[i].Quantity > 0 {
-				available := state.Resources[i].Quantity
-				take := amount - consumed
-				if take > available {
-					take = available
-				}
-				state.Resources[i].Quantity -= take
-				consumed += take
-				if state.Resources[i].Quantity <= 0 {
-					// Remove zero quantity resource
-					state.Resources = append(state.Resources[:i], state.Resources[i+1:]...)
-					break // need to restart iteration but fine for now
-				}
-				if consumed >= amount {
-					break
-				}
-			}
+	// Consume resources from inventory
+	consumeFromInventory := func(rt economy.ResourceType, amount int) int {
+		if amount <= 0 {
+			return 0
 		}
-		return consumed
+		removed, err := state.Inventory.RemoveResource("global", rt, float64(amount))
+		if err != nil {
+			return 0
+		}
+		return int(removed)
 	}
 
-	woodConsumed := consumeResource(economy.ResourceWood, requiredWood)
-	stoneConsumed := consumeResource(economy.ResourceStone, requiredStone)
-	toolsConsumed := consumeResource(economy.ResourceTools, requiredTools) // note: resource type "tool" not "tools"
+	woodConsumed := consumeFromInventory(economy.ResourceWood, requiredWood)
+	stoneConsumed := consumeFromInventory(economy.ResourceStone, requiredStone)
+	toolsConsumed := consumeFromInventory(economy.ResourceTools, requiredTools)
+
+	// If inventory didn't have enough, fall back to legacy Resources slice (should be synced already)
+	if woodConsumed < requiredWood || stoneConsumed < requiredStone || toolsConsumed < requiredTools {
+		// This should rarely happen if inventory is synced, but keep for backward compatibility
+		// We'll just accept whatever was consumed from inventory (no further fallback)
+		// In practice, SyncInventory loads all resources, so inventory should have everything.
+	}
+
+	// After inventory modifications, sync Resources slice for any remaining legacy code
+	state.SyncResources()
 
 	if woodConsumed > 0 || stoneConsumed > 0 || toolsConsumed > 0 {
 		events = append(events, Event{
@@ -186,44 +226,41 @@ func (e *EconomicSystem) consumeMaintenanceResources(week int, state *GameState,
 
 // applySpoilage reduces food quantity over time.
 func (e *EconomicSystem) applySpoilage(week int, state *GameState, rng *rand.Rand) []Event {
-	events := make([]Event, 0, len(state.Resources))
-	spoilageRate := 0.05 // 5% spoilage per week
-
-	for i := range state.Resources {
-		r := &state.Resources[i]
-		// Only spoil food types
-		if r.Type == "food" || r.Type == "grain" || r.Type == "meat" {
-			spoiled := int(float64(r.Quantity) * spoilageRate)
-			if spoiled < 1 && r.Quantity > 0 {
-				spoiled = 1 // at least 1 unit spoils if any quantity
-			}
-			if spoiled > 0 {
-				r.Quantity -= spoiled
-				// If quantity becomes zero, mark for removal
-				if r.Quantity <= 0 {
-					state.Resources[i].Quantity = 0
-				}
-				events = append(events, Event{
-					ID:        generateEventID("spoilage", week),
-					Type:      "spoilage",
-					Timestamp: formatWeekTimestamp(state.Calendar.Year, week),
-					Data: map[string]interface{}{
-						"resource": r.Type,
-						"amount":   spoiled,
-					},
-				})
-			}
-		}
+	events := make([]Event, 0, 10)
+	// Ensure inventory exists and is synced
+	state.SyncInventory()
+	if state.Inventory == nil {
+		// Should not happen after SyncInventory, but fallback
+		return events
 	}
 
-	// Remove zero quantity resources
-	newResources := make([]Resource, 0, len(state.Resources))
-	for _, r := range state.Resources {
-		if r.Quantity > 0 {
-			newResources = append(newResources, r)
-		}
+	// Convert simulation week to economy game date
+	currentDate := economy.GameDate{
+		Year: state.Calendar.Year,
+		Week: week,
 	}
-	state.Resources = newResources
+
+	// Apply spoilage to inventory using storage registry (may be nil)
+	spoiledTotals := economy.ApplySpoilageToInventory(state.Inventory, e.storage, currentDate)
+
+	// Generate events for each resource type that spoiled
+	for rtStr, spoiledQty := range spoiledTotals {
+		if spoiledQty <= 0 {
+			continue
+		}
+		events = append(events, Event{
+			ID:        generateEventID("spoilage", week),
+			Type:      "spoilage",
+			Timestamp: formatWeekTimestamp(state.Calendar.Year, week),
+			Data: map[string]interface{}{
+				"resource": rtStr,
+				"amount":   int(spoiledQty),
+			},
+		})
+	}
+
+	// Sync Resources slice to reflect inventory changes
+	state.SyncResources()
 
 	return events
 }
@@ -296,7 +333,14 @@ func (e *EconomicSystem) adjustHappinessForWealth(state *GameState) {
 // enforceStorageLimits ensures resources do not exceed storage capacity.
 func (e *EconomicSystem) enforceStorageLimits(week int, state *GameState, rng *rand.Rand) []Event {
 	events := make([]Event, 0, len(state.Buildings))
-	// Calculate total storage capacity
+	// Ensure inventory exists and is synced
+	state.SyncInventory()
+	if state.Inventory == nil {
+		// Should not happen after SyncInventory, but fallback
+		return events
+	}
+
+	// Calculate total storage capacity (legacy logic)
 	baseCapacity := 100
 	warehouseCapacity := 0
 	for _, b := range state.Buildings {
@@ -306,7 +350,41 @@ func (e *EconomicSystem) enforceStorageLimits(week int, state *GameState, rng *r
 	}
 	totalCapacity := baseCapacity + warehouseCapacity
 
-	// Apply to food resources
+	// Food resource types to enforce limits on
+	foodTypes := []economy.ResourceType{
+		economy.ResourceGrain,
+		economy.ResourceVegetables,
+		economy.ResourceBread,
+	}
+
+	// Iterate over food types
+	for _, rt := range foodTypes {
+		totalQty := state.Inventory.GetAvailable("global", rt)
+		if totalQty > float64(totalCapacity) {
+			excess := totalQty - float64(totalCapacity)
+			// Remove excess from inventory (from global location)
+			removed, err := state.Inventory.RemoveResource("global", rt, excess)
+			if err != nil {
+				// Should not happen
+				continue
+			}
+			if removed > 0 {
+				events = append(events, Event{
+					ID:        generateEventID("storage-limit", week),
+					Type:      "storage",
+					Timestamp: formatWeekTimestamp(state.Calendar.Year, week),
+					Data: map[string]interface{}{
+						"resource": string(rt),
+						"excess":   int(removed),
+						"capacity": totalCapacity,
+					},
+				})
+			}
+		}
+	}
+
+	// Also check legacy "food" resource in Resources slice (should be synced)
+	// This is redundant but ensures backward compatibility
 	for i := range state.Resources {
 		r := &state.Resources[i]
 		if r.Type == "food" || r.Type == "grain" || r.Type == "meat" {
@@ -326,5 +404,9 @@ func (e *EconomicSystem) enforceStorageLimits(week int, state *GameState, rng *r
 			}
 		}
 	}
+
+	// Sync Resources slice to reflect inventory changes
+	state.SyncResources()
+
 	return events
 }

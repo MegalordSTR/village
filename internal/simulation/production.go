@@ -65,11 +65,8 @@ func processAgriculture(week int, state *GameState, rng *rand.Rand) []Event {
 		if growthStage >= 3 {
 			yield := calculateYield(state.Environment, b.Level, rng)
 			// Add resource
-			state.AddResource(Resource{
-				Type:     StringToResourceType(b.Metadata["crop_type"].(string)),
-				Quantity: yield,
-				Quality:  1.0, // TODO: vary based on conditions
-			})
+			rt := StringToResourceType(b.Metadata["crop_type"].(string))
+			_ = AddProducedResource(state, b, rt, yield, 1.0) // TODO: vary quality based on conditions
 			// Record event
 			events = append(events, Event{
 				ID:        generateEventID("harvest", week),
@@ -219,11 +216,7 @@ func processMining(week int, state *GameState, rng *rand.Rand) []Event {
 
 		if extraction > 0 {
 			// Add resource (simplified: always produce "ore")
-			state.AddResource(Resource{
-				Type:     economy.ResourceIronOre,
-				Quantity: int(extraction),
-				Quality:  qualityMultiplier,
-			})
+			_ = AddProducedResource(state, b, economy.ResourceIronOre, int(extraction), qualityMultiplier)
 
 			events = append(events, Event{
 				ID:        generateEventID("mining", week),
@@ -258,46 +251,25 @@ func processCrafting(week int, state *GameState, rng *rand.Rand) []Event {
 		// Determine recipe (simplified: consume 2 ore, produce 1 tool)
 		requiredOre := 2
 		// Check if we have enough ore
-		oreAvailable := 0
-		for _, res := range state.Resources {
-			if res.Type == economy.ResourceIronOre {
-				oreAvailable += res.Quantity
-			}
-		}
+		oreAvailable := GetAvailableResourceFromState(state, economy.ResourceIronOre)
 		if oreAvailable < requiredOre {
 			// Not enough resources
 			continue
 		}
-
 		// Consume ore
-		oreToConsume := requiredOre
-		for j := range state.Resources {
-			if state.Resources[j].Type == economy.ResourceIronOre && oreToConsume > 0 {
-				if state.Resources[j].Quantity <= oreToConsume {
-					oreToConsume -= state.Resources[j].Quantity
-					state.Resources[j].Quantity = 0
-				} else {
-					state.Resources[j].Quantity -= oreToConsume
-					oreToConsume = 0
-				}
-			}
+		consumed, _ := ConsumeResourceFromState(state, economy.ResourceIronOre, requiredOre)
+		if consumed < requiredOre {
+			// Should not happen since we checked availability
+			continue
 		}
-		// Remove resources with zero quantity
-		newResources := make([]Resource, 0, len(state.Resources))
-		for _, res := range state.Resources {
-			if res.Quantity > 0 {
-				newResources = append(newResources, res)
-			}
+		// If inventory was used, sync Resources slice for any remaining legacy code
+		if state.Inventory != nil {
+			state.SyncResources()
 		}
-		state.Resources = newResources
 
 		// Produce tool
 		toolsProduced := 1 * b.Level
-		state.AddResource(Resource{
-			Type:     economy.ResourceTools,
-			Quantity: toolsProduced,
-			Quality:  1.0,
-		})
+		_ = AddProducedResource(state, b, economy.ResourceTools, toolsProduced, 1.0)
 
 		events = append(events, Event{
 			ID:        generateEventID("crafting", week),
@@ -345,16 +317,8 @@ func processConstruction(week int, state *GameState, rng *rand.Rand) []Event { /
 		// Check for required materials: wood and stone
 		woodNeeded := 5
 		stoneNeeded := 3
-		woodAvailable := 0
-		stoneAvailable := 0
-		for _, res := range state.Resources {
-			if res.Type == economy.ResourceWood {
-				woodAvailable += res.Quantity
-			}
-			if res.Type == economy.ResourceStone {
-				stoneAvailable += res.Quantity
-			}
-		}
+		woodAvailable := GetAvailableResourceFromState(state, economy.ResourceWood)
+		stoneAvailable := GetAvailableResourceFromState(state, economy.ResourceStone)
 
 		// If materials insufficient, reduce contribution
 		materialMultiplier := 1.0
@@ -368,39 +332,15 @@ func processConstruction(week int, state *GameState, rng *rand.Rand) []Event { /
 		// Consume materials if available
 		if woodAvailable >= woodNeeded && stoneAvailable >= stoneNeeded {
 			// Consume wood
-			woodToConsume := woodNeeded
-			for j := range state.Resources {
-				if state.Resources[j].Type == economy.ResourceWood && woodToConsume > 0 {
-					if state.Resources[j].Quantity <= woodToConsume {
-						woodToConsume -= state.Resources[j].Quantity
-						state.Resources[j].Quantity = 0
-					} else {
-						state.Resources[j].Quantity -= woodToConsume
-						woodToConsume = 0
-					}
-				}
-			}
+			consumedWood, _ := ConsumeResourceFromState(state, economy.ResourceWood, woodNeeded)
 			// Consume stone
-			stoneToConsume := stoneNeeded
-			for j := range state.Resources {
-				if state.Resources[j].Type == economy.ResourceStone && stoneToConsume > 0 {
-					if state.Resources[j].Quantity <= stoneToConsume {
-						stoneToConsume -= state.Resources[j].Quantity
-						state.Resources[j].Quantity = 0
-					} else {
-						state.Resources[j].Quantity -= stoneToConsume
-						stoneToConsume = 0
-					}
-				}
+			consumedStone, _ := ConsumeResourceFromState(state, economy.ResourceStone, stoneNeeded)
+			// If inventory was used, sync Resources slice for any remaining legacy code
+			if state.Inventory != nil {
+				state.SyncResources()
 			}
-			// Remove zero quantity resources
-			newResources := make([]Resource, 0, len(state.Resources))
-			for _, res := range state.Resources {
-				if res.Quantity > 0 {
-					newResources = append(newResources, res)
-				}
-			}
-			state.Resources = newResources
+			_ = consumedWood
+			_ = consumedStone // silence unused variable warnings
 		}
 
 		// Calculate progress increase

@@ -204,7 +204,9 @@ func TestAddResident(t *testing.T) {
 func TestAddResource(t *testing.T) {
 	gs := NewGameState("test", 42)
 	res := Resource{Type: "wood", Quantity: 10, Quality: 0.8}
-	gs.AddResource(res)
+	if err := gs.AddResource(res); err != nil {
+		t.Fatalf("AddResource failed: %v", err)
+	}
 	if len(gs.Resources) != 1 {
 		t.Fatalf("expected 1 resource, got %d", len(gs.Resources))
 	}
@@ -252,7 +254,9 @@ func TestAddPolicy(t *testing.T) {
 func TestGameStateJSON(t *testing.T) {
 	gs := NewGameState("json-test", 99)
 	gs.AddResident(Resident{ID: "r1", Name: "Charlie"})
-	gs.AddResource(Resource{Type: "stone", Quantity: 5})
+	if err := gs.AddResource(Resource{Type: "stone", Quantity: 5}); err != nil {
+		t.Fatalf("AddResource failed: %v", err)
+	}
 	gs.AddBuilding(Building{Type: "market", Location: "B2"})
 
 	data, err := json.Marshal(gs)
@@ -280,5 +284,25 @@ func TestCore(t *testing.T) {
 	err := c.ProcessWeek()
 	if err != nil {
 		t.Errorf("ProcessWeek returned error: %v", err)
+	}
+}
+
+func TestAddResource_Invalid(t *testing.T) {
+	gs := NewGameState("test", 42)
+	// Invalid resource type
+	err := gs.AddResource(Resource{Type: "unknown", Quantity: 10})
+	if err == nil {
+		t.Error("expected error for unknown resource type")
+	}
+	// Negative quantity
+	err = gs.AddResource(Resource{Type: "wood", Quantity: -5})
+	if err == nil {
+		t.Error("expected error for negative quantity")
+	}
+	// With inventory present (should also propagate error)
+	gs.SyncInventory()
+	err = gs.AddResource(Resource{Type: "unknown", Quantity: 10})
+	if err == nil {
+		t.Error("expected error for unknown resource type with inventory")
 	}
 }

@@ -85,11 +85,13 @@ func TestExtremeEnvironmentalValues(t *testing.T) {
 func TestExtremeResourceQuantities(t *testing.T) {
 	state := NewGameState("extreme-resources", 999)
 	// Add a massive amount of a resource
-	state.AddResource(Resource{
+	if err := state.AddResource(Resource{
 		Type:     "food",
 		Quantity: 1_000_000,
 		Quality:  1.0,
-	})
+	}); err != nil {
+		t.Fatalf("AddResource failed: %v", err)
+	}
 	prod := NewProductionSystem()
 	events := prod.Update(state.Calendar.Week, state, state.RNG.Rand())
 	_ = events

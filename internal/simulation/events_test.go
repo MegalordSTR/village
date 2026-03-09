@@ -69,7 +69,9 @@ func TestEventDiseaseOutbreak(t *testing.T) {
 	state.Environment.Season = "winter"
 	state.Environment.ForestHealth = 0.2
 	// Add food resource
-	state.AddResource(Resource{Type: economy.ResourceGrain, Quantity: 100, Quality: 1.0})
+	if err := state.AddResource(Resource{Type: economy.ResourceGrain, Quantity: 100, Quality: 1.0}); err != nil {
+		t.Fatalf("AddResource failed: %v", err)
+	}
 	initialFood := state.Resources[0].Quantity
 	events := evt.Update(1, state, state.RNG.Rand())
 	if len(events) == 0 {
@@ -91,7 +93,9 @@ func TestEventGoodHarvest(t *testing.T) {
 	state := NewGameState("test-good-harvest", 222)
 	state.Environment.Season = "autumn"
 	state.Environment.SoilFertility = 0.9
-	state.AddResource(Resource{Type: economy.ResourceGrain, Quantity: 100, Quality: 1.0})
+	if err := state.AddResource(Resource{Type: economy.ResourceGrain, Quantity: 100, Quality: 1.0}); err != nil {
+		t.Fatalf("AddResource failed: %v", err)
+	}
 	initialFood := state.Resources[0].Quantity
 	events := evt.Update(1, state, state.RNG.Rand())
 	if len(events) == 0 {
@@ -112,7 +116,9 @@ func TestEventBadHarvest(t *testing.T) {
 	state := NewGameState("test-bad-harvest", 333)
 	state.Environment.Season = "summer"
 	state.Environment.Rainfall = 3.0 // low rainfall
-	state.AddResource(Resource{Type: economy.ResourceGrain, Quantity: 100, Quality: 1.0})
+	if err := state.AddResource(Resource{Type: economy.ResourceGrain, Quantity: 100, Quality: 1.0}); err != nil {
+		t.Fatalf("AddResource failed: %v", err)
+	}
 	initialFood := state.Resources[0].Quantity
 	events := evt.Update(1, state, state.RNG.Rand())
 	if len(events) == 0 {
@@ -193,7 +199,9 @@ func TestAdjustResourceZeroQuantity(t *testing.T) {
 	state.Environment.Season = "winter"
 	state.Environment.ForestHealth = 0.2
 	// Add food resource with zero quantity
-	state.AddResource(Resource{Type: "food", Quantity: 0, Quality: 1.0})
+	if err := state.AddResource(Resource{Type: "food", Quantity: 0, Quality: 1.0}); err != nil {
+		t.Fatalf("AddResource failed: %v", err)
+	}
 	events := evt.Update(1, state, state.RNG.Rand())
 	if len(events) == 0 {
 		t.Fatal("expected disease outbreak event")
@@ -221,7 +229,9 @@ func TestEventCoverage(t *testing.T) {
 		state := NewGameState("test-disease", 777)
 		state.Environment.Season = "winter"
 		state.Environment.ForestHealth = health
-		state.AddResource(Resource{Type: "food", Quantity: 100})
+		if err := state.AddResource(Resource{Type: "food", Quantity: 100}); err != nil {
+			t.Fatalf("AddResource failed: %v", err)
+		}
 		evt.Update(1, state, state.RNG.Rand())
 	}
 	// 3. Good harvest with high soil fertility
@@ -229,7 +239,9 @@ func TestEventCoverage(t *testing.T) {
 		state := NewGameState("test-good", 888)
 		state.Environment.Season = "autumn"
 		state.Environment.SoilFertility = fertility
-		state.AddResource(Resource{Type: "food", Quantity: 100})
+		if err := state.AddResource(Resource{Type: "food", Quantity: 100}); err != nil {
+			t.Fatalf("AddResource failed: %v", err)
+		}
 		evt.Update(1, state, state.RNG.Rand())
 	}
 	// 4. Bad harvest with low rainfall
@@ -237,7 +249,9 @@ func TestEventCoverage(t *testing.T) {
 		state := NewGameState("test-bad", 999)
 		state.Environment.Season = "summer"
 		state.Environment.Rainfall = rain
-		state.AddResource(Resource{Type: "food", Quantity: 100})
+		if err := state.AddResource(Resource{Type: "food", Quantity: 100}); err != nil {
+			t.Fatalf("AddResource failed: %v", err)
+		}
 		evt.Update(1, state, state.RNG.Rand())
 	}
 	// 5. Accident with zero-level building (should not reduce below zero)

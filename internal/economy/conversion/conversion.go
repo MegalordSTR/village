@@ -11,7 +11,7 @@ import (
 // Quality is mapped to float64 range [0,1].
 func ToSimulationResource(er economy.Resource) simulation.Resource {
 	return simulation.Resource{
-		Type:     string(er.Type),
+		Type:     er.Type,
 		Quantity: int(math.Round(er.Quantity)),
 		Quality:  economy.QualityToFloat(er.Quality),
 	}
@@ -20,7 +20,7 @@ func ToSimulationResource(er economy.Resource) simulation.Resource {
 // FromSimulationResource converts a simulation Resource to an economy Resource.
 // Uses default values for missing fields (Location empty, Produced zero, Value base value).
 func FromSimulationResource(sr simulation.Resource) economy.Resource {
-	rt := economy.ResourceType(sr.Type)
+	rt := sr.Type
 	if !economy.IsValidType(rt) {
 		// Fallback to grain if unknown
 		rt = economy.ResourceGrain
@@ -36,10 +36,11 @@ func FromSimulationResource(sr simulation.Resource) economy.Resource {
 }
 
 // LoadInventoryFromGameState imports simulation resources into inventory, assigning them to defaultLocation.
-func LoadInventoryFromGameState(inv *economy.Inventory, resources []simulation.Resource, defaultLocation string) error {
+func LoadInventoryFromGameState(inv *economy.Inventory, resources []simulation.Resource, defaultLocation string, produced economy.GameDate) error {
 	for _, sr := range resources {
 		r := FromSimulationResource(sr)
 		r.Location = defaultLocation
+		r.Produced = produced
 		if err := inv.AddResource(defaultLocation, r); err != nil {
 			return err
 		}

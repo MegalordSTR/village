@@ -16,8 +16,12 @@ func TestFullTurnCycleIntegration(t *testing.T) {
 			Age:  25 + i*5,
 		})
 	}
-	state.AddResource(Resource{Type: "food", Quantity: 100, Quality: 1.0})
-	state.AddResource(Resource{Type: "wood", Quantity: 50, Quality: 0.8})
+	if err := state.AddResource(Resource{Type: "food", Quantity: 100, Quality: 1.0}); err != nil {
+		t.Fatalf("AddResource failed: %v", err)
+	}
+	if err := state.AddResource(Resource{Type: "wood", Quantity: 50, Quality: 0.8}); err != nil {
+		t.Fatalf("AddResource failed: %v", err)
+	}
 
 	tp := NewTurnProcessor()
 	tp.RegisterSystem(SystemEnvironment, NewEnvironmentSystem())
@@ -51,7 +55,9 @@ func TestSaveLoadCycle(t *testing.T) {
 	state1 := NewGameState("save-load", 54321)
 	// Populate with some data
 	state1.AddResident(Resident{ID: "r1", Name: "Alice", Age: 30})
-	state1.AddResource(Resource{Type: "gold", Quantity: 10, Quality: 0.9})
+	if err := state1.AddResource(Resource{Type: "gold", Quantity: 10, Quality: 0.9}); err != nil {
+		t.Fatalf("AddResource failed: %v", err)
+	}
 	state1.AddBuilding(Building{Type: "house", Location: "north", Level: 1})
 
 	// Marshal to JSON

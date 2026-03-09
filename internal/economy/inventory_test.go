@@ -1,6 +1,7 @@
 package economy
 
 import (
+	"math"
 	"testing"
 )
 
@@ -182,5 +183,38 @@ func TestInventory_CheckAlerts(t *testing.T) {
 		if alert.Location != "" {
 			t.Errorf("Alert location should be empty for global total, got %s", alert.Location)
 		}
+	}
+}
+
+func TestInventory_AddResource_Invalid(t *testing.T) {
+	inv := NewInventory()
+	// Unknown resource type
+	err := inv.AddResource("loc", Resource{Type: "unknown", Quantity: 10})
+	if err == nil {
+		t.Error("expected error for unknown resource type")
+	}
+	// Negative quantity
+	err = inv.AddResource("loc", Resource{Type: ResourceGrain, Quantity: -5})
+	if err == nil {
+		t.Error("expected error for negative quantity")
+	}
+}
+
+func TestInventory_RemoveResource_InvalidQuantity(t *testing.T) {
+	inv := NewInventory()
+	// Negative quantity
+	_, err := inv.RemoveResource("loc", ResourceGrain, -10)
+	if err == nil {
+		t.Error("expected error for negative quantity")
+	}
+	// NaN quantity
+	_, err = inv.RemoveResource("loc", ResourceGrain, math.NaN())
+	if err == nil {
+		t.Error("expected error for NaN quantity")
+	}
+	// Inf quantity
+	_, err = inv.RemoveResource("loc", ResourceGrain, math.Inf(1))
+	if err == nil {
+		t.Error("expected error for Inf quantity")
 	}
 }

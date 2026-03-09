@@ -2,6 +2,7 @@ package economy
 
 import (
 	"errors"
+	"math"
 )
 
 // Inventory manages resources across storage locations.
@@ -70,6 +71,9 @@ func (inv *Inventory) CheckAlerts(thresholds AlertThreshold) []Alert {
 // AddResource adds a resource to a location.
 // If a storage registry is attached, it validates capacity and storage type.
 func (inv *Inventory) AddResource(location string, r Resource) error {
+	if !r.Validate() {
+		return errors.New("invalid resource: type not recognized or negative quantity")
+	}
 	if inv.storage != nil {
 		// Check if resource type can be stored at this location
 		if !inv.storage.CanStoreResourceAt(location, r.Type) {
@@ -103,6 +107,9 @@ func (inv *Inventory) GetAvailable(location string, rt ResourceType) float64 {
 // RemoveResource removes the requested quantity of a resource type from a location.
 // Returns the amount removed (equal to quantity) or an error if insufficient.
 func (inv *Inventory) RemoveResource(location string, rt ResourceType, quantity float64) (float64, error) {
+	if quantity < 0 || math.IsNaN(quantity) || math.IsInf(quantity, 0) {
+		return 0.0, errors.New("invalid quantity: must be non‑negative finite number")
+	}
 	available := inv.GetAvailable(location, rt)
 	if available < quantity {
 		return 0.0, errors.New("insufficient quantity")

@@ -24,9 +24,13 @@ func TestEconomyUpdateDeterministic(t *testing.T) {
 
 	// Add some residents and resources for testing
 	state1.AddResident(Resident{ID: "r1", Name: "Alice", Age: 30})
-	state1.AddResource(Resource{Type: "food", Quantity: 100, Quality: 1.0})
+	if err := state1.AddResource(Resource{Type: "food", Quantity: 100, Quality: 1.0}); err != nil {
+		t.Fatalf("AddResource failed: %v", err)
+	}
 	state2.AddResident(Resident{ID: "r1", Name: "Alice", Age: 30})
-	state2.AddResource(Resource{Type: "food", Quantity: 100, Quality: 1.0})
+	if err := state2.AddResource(Resource{Type: "food", Quantity: 100, Quality: 1.0}); err != nil {
+		t.Fatalf("AddResource failed: %v", err)
+	}
 
 	// Process first week
 	events1 := econ.Update(1, state1, state1.RNG.Rand())
@@ -45,7 +49,9 @@ func TestEconomyUpdateConsumesFood(t *testing.T) {
 	econ := NewEconomicSystem()
 	state := NewGameState("test", 456)
 	state.AddResident(Resident{ID: "r1", Name: "Bob", Age: 25})
-	state.AddResource(Resource{Type: "food", Quantity: 50, Quality: 1.0})
+	if err := state.AddResource(Resource{Type: "food", Quantity: 50, Quality: 1.0}); err != nil {
+		t.Fatalf("AddResource failed: %v", err)
+	}
 
 	initialFood := 0
 	for _, r := range state.Resources {
@@ -86,8 +92,12 @@ func TestEconomyUpdateBuildingMaintenance(t *testing.T) {
 	econ := NewEconomicSystem()
 	state := NewGameState("test", 789)
 	state.AddBuilding(Building{Type: "house", Location: "north", Level: 1})
-	state.AddResource(Resource{Type: "wood", Quantity: 20, Quality: 1.0})
-	state.AddResource(Resource{Type: "stone", Quantity: 10, Quality: 1.0})
+	if err := state.AddResource(Resource{Type: "wood", Quantity: 20, Quality: 1.0}); err != nil {
+		t.Fatalf("AddResource failed: %v", err)
+	}
+	if err := state.AddResource(Resource{Type: "stone", Quantity: 10, Quality: 1.0}); err != nil {
+		t.Fatalf("AddResource failed: %v", err)
+	}
 
 	initialWood := 0
 	initialStone := 0
@@ -134,7 +144,9 @@ func TestEconomyUpdateBuildingMaintenance(t *testing.T) {
 func TestEconomyFoodSpoilage(t *testing.T) {
 	econ := NewEconomicSystem()
 	state := NewGameState("test", 999)
-	state.AddResource(Resource{Type: "food", Quantity: 100, Quality: 1.0})
+	if err := state.AddResource(Resource{Type: "food", Quantity: 100, Quality: 1.0}); err != nil {
+		t.Fatalf("AddResource failed: %v", err)
+	}
 
 	initialFood := 0
 	for _, r := range state.Resources {
@@ -165,7 +177,9 @@ func TestEconomyStorageLimits(t *testing.T) {
 	econ := NewEconomicSystem()
 	state := NewGameState("test", 111)
 	state.AddBuilding(Building{Type: "warehouse", Location: "store", Level: 1})
-	state.AddResource(Resource{Type: "food", Quantity: 200, Quality: 1.0})
+	if err := state.AddResource(Resource{Type: "food", Quantity: 200, Quality: 1.0}); err != nil {
+		t.Fatalf("AddResource failed: %v", err)
+	}
 	// capacity base 100 + warehouse 50 = 150
 	events := econ.Update(state.Calendar.Week, state, state.RNG.Rand())
 	// food should be reduced to 150

@@ -1,6 +1,7 @@
 package simulation
 
 import (
+	"errors"
 	"github.com/vano44/village/internal/economy"
 )
 
@@ -63,15 +64,23 @@ func (gs *GameState) AddResident(r Resident) {
 }
 
 // AddResource adds a resource to the state.
-func (gs *GameState) AddResource(r Resource) {
+func (gs *GameState) AddResource(r Resource) error {
+	// Reject unknown resource types (including unmapped legacy strings)
+	if !IsKnownType(string(r.Type)) {
+		return errors.New("invalid resource type")
+	}
+	// Convert to economy resource and validate quantity
+	er := ToEconomyResource(r)
+	if !er.Validate() {
+		return errors.New("invalid resource")
+	}
 	gs.Resources = append(gs.Resources, r)
 	// If inventory exists, add the resource there as well (at default "global" location)
 	if gs.Inventory != nil {
-		er := ToEconomyResource(r)
 		er.Location = "global"
-		// Ignore error for now; in production we might want to handle it
-		_ = gs.Inventory.AddResource("global", er)
+		return gs.Inventory.AddResource("global", er)
 	}
+	return nil
 }
 
 // AddBuilding adds a building to the state.
@@ -96,7 +105,9 @@ func (gs *GameState) SyncInventory() {
 	if gs.Inventory == nil {
 		gs.Inventory = economy.NewInventory()
 		// Load existing resources into inventory at default location "global"
-		LoadInventoryFromGameState(gs.Inventory, gs.Resources, "global")
+		// Legacy resources are assigned current game date as production date
+		produced := CalendarToGameDate(gs.Calendar)
+		LoadInventoryFromGameState(gs.Inventory, gs.Resources, "global", produced)
 	}
 }
 
