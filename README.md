@@ -160,6 +160,16 @@ Services include health check endpoints:
 
 Use `make health` to check all services.
 
+## Security Practices
+
+- **Dependency Scanning**: Automated vulnerability scanning runs on every push and weekly via GitHub Actions. Check the Security tab for findings.
+- **npm Audit**: Frontend dependencies are audited using `npm audit`. Run `cd frontend && npm audit` locally.
+- **Container Security**: Docker images are scanned with Trivy for known vulnerabilities.
+- **Update Procedures**:
+  - Regularly update npm packages: `cd frontend && npm outdated` to check, `npm update` to update within version ranges.
+  - Update Docker base images: Review `Dockerfile` and `docker-compose.yml` for latest Alpine tags.
+  - Review security scanning results in GitHub Actions.
+
 ## Database Migrations
 
 When database schema changes are required:

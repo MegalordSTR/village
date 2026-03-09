@@ -31,7 +31,7 @@ jobs:
           node-version: '20'
 
       - name: Install frontend dependencies
-        run: cd frontend && npm ci --omit=dev
+        run: cd frontend && npm ci
 
       - name: Build frontend
         run: cd frontend && npm run build -- --configuration production
