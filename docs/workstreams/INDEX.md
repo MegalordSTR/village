@@ -86,5 +86,37 @@ graph TD
 - Feature ID F004 corresponds to "Resource Economy System Integration" initiative.
 - Depends on completed F002 (Resource Economy System).
 
+### Remediation Workstreams (Phase 4)
+
+**Goal**: Address P1 blocking findings from the multi‑agent review (CHANGES_REQUESTED). Break backward compatibility where necessary to fix critical issues.
+
+#### Workstreams
+
+| WS ID | Title | Status | Dependencies | Scope | Estimated LOC |
+|-------|-------|--------|--------------|-------|---------------|
+| [WS-004-07](backlog/00-004-07.md) | Handle Unknown Resource Types in Save File Migration | backlog | Independent | SMALL | ~50 |
+| [WS-004-08](backlog/00-004-08.md) | Fix Validation and Error Handling in Inventory Operations | backlog | Independent | SMALL/MEDIUM | ~80 |
+| [WS-004-09](backlog/00-004-09.md) | Remove Unused Conversion Package and Fix Legacy String Comparisons | backlog | Independent | MEDIUM | ~100 |
+| [WS-004-10](backlog/00-004-10.md) | Consolidate Storage System – Remove Dual Storage and Legacy Resources Slice | backlog | WS-004-08, WS-004-07 | MEDIUM | ~300 |
+| [WS-004-11](backlog/00-004-11.md) | Add Observability (Logging/Metrics) for Inventory Operations | backlog | WS-004-10 | SMALL | ~60 |
+
+#### Dependency Graph
+
+```mermaid
+graph TD
+    A[WS-004-07: Unknown Resource Types] --> D[WS-004-10: Consolidate Storage]
+    B[WS-004-08: Validation & Error Handling] --> D
+    C[WS-004-09: Remove Conversion] --> D
+    D --> E[WS-004-11: Observability]
+```
+
+#### Execution Order
+
+1. **WS-004-07**: Handle unknown resource types (independent)
+2. **WS-004-08**: Fix validation and error handling (independent)
+3. **WS-004-09**: Remove unused conversion package and fix legacy string comparisons (independent)
+4. **WS-004-10**: Consolidate storage system (depends on #7 and #8)
+5. **WS-004-11**: Add observability (depends on #10)
+
 ---
 
