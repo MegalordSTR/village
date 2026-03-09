@@ -81,7 +81,7 @@ func CalculateProduction(ctx ProductionContext) ProductionResult {
 	}
 
 	// Deterministic RNG
-	rng := rand.New(rand.NewSource(ctx.RandSeed))
+	rng := rand.New(rand.NewSource(ctx.RandSeed)) // #nosec G404
 
 	effectiveSkill := computeEffectiveSkill(ctx.WorkerSkill, ctx.BuildingCondition)
 

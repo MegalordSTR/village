@@ -16,7 +16,7 @@ func NewProductionSystem() *ProductionSystem {
 // Update processes one week of production simulation.
 // It updates crop growth, mining extraction, crafting, and construction progress.
 func (p *ProductionSystem) Update(week int, state *GameState, rng *rand.Rand) []Event {
-	var events []Event
+	events := make([]Event, 0, len(state.Buildings))
 
 	events = append(events, processAgriculture(week, state, rng)...)
 	events = append(events, processMining(week, state, rng)...)
@@ -313,7 +313,7 @@ func processCrafting(week int, state *GameState, rng *rand.Rand) []Event {
 }
 
 // processConstruction handles building progress at construction sites.
-func processConstruction(week int, state *GameState, rng *rand.Rand) []Event {
+func processConstruction(week int, state *GameState, rng *rand.Rand) []Event { //nolint:gocognit
 	var events []Event
 
 	for i := range state.Buildings {

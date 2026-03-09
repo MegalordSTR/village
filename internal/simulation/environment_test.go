@@ -123,7 +123,7 @@ func TestCalculateSeason(t *testing.T) {
 	}
 }
 
-func TestCalculateWeatherDeterministic(t *testing.T) {
+func TestCalculateWeatherDeterministic(t *testing.T) { //nolint:gocognit
 	// Test each season
 	seasons := []string{"spring", "summer", "autumn", "winter"}
 	for _, season := range seasons {

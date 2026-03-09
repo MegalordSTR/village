@@ -145,7 +145,9 @@ func (inv *Inventory) TransferResource(src, dst string, rt ResourceType, quantit
 		return 0.0, nil
 	}
 	// Add to destination as a new resource with default quality and produced date
-	inv.AddResource(dst, NewResource(rt, removed)) //nolint:errcheck
+	if err := inv.AddResource(dst, NewResource(rt, removed)); err != nil {
+		return 0.0, err
+	}
 	return removed, nil
 }
 

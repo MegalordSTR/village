@@ -25,7 +25,7 @@ func BenchmarkInventoryAddRemove(b *testing.B) {
 	inv := NewInventory()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		inv.AddResource("store", Resource{Type: ResourceWood, Quantity: 10, Quality: QualityNormal})
-		inv.RemoveResource("store", ResourceWood, 5)
+		_ = inv.AddResource("store", Resource{Type: ResourceWood, Quantity: 10, Quality: QualityNormal})
+		_, _ = inv.RemoveResource("store", ResourceWood, 5)
 	}
 }

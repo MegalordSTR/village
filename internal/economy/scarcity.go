@@ -40,19 +40,19 @@ func RecommendUse(currentModifier, futureNeed float64) bool {
 // DiscoverResource discovers a new resource source at the given location type.
 // Location type can be "mine_vein" or "forest_patch".
 // Returns a Mine or Forest with randomized parameters.
-func DiscoverResource(locationType string) interface{} {
+func DiscoverResource(locationType string, rng *rand.Rand) interface{} {
 	switch locationType {
 	case "mine_vein":
-		totalOre := 100.0 + rand.Float64()*900.0    // 100-1000
-		depletionRate := 0.05 + rand.Float64()*0.15 // 0.05-0.2
+		totalOre := 100.0 + rng.Float64()*900.0    // 100-1000
+		depletionRate := 0.05 + rng.Float64()*0.15 // 0.05-0.2
 		return Mine{
 			TotalOre:      totalOre,
 			RemainingOre:  totalOre,
 			DepletionRate: depletionRate,
 		}
 	case "forest_patch":
-		health := 0.2 + rand.Float64()*0.8        // 0.2-1.0
-		regrowthRate := 0.05 + rand.Float64()*0.1 // 0.05-0.15
+		health := 0.2 + rng.Float64()*0.8        // 0.2-1.0
+		regrowthRate := 0.05 + rng.Float64()*0.1 // 0.05-0.15
 		return Forest{
 			Health:       health,
 			RegrowthRate: regrowthRate,

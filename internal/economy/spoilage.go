@@ -67,6 +67,7 @@ func ApplySpoilageToInventory(inv *Inventory, storageReg *StorageRegistry, curre
 		storage := storageReg.GetBuilding(location)
 		if storage == nil {
 			continue // no storage building, no spoilage? maybe default outdoor pile?
+			// TODO apply additional spoilage if resources stored without storage, it must be much more than in proper storage building
 		}
 		for i := range resources {
 			spoiled, _ := ApplySpoilage(&resources[i], storage, currentDate)

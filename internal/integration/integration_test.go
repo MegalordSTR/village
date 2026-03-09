@@ -24,7 +24,7 @@ func TestBuildBinary(t *testing.T) {
 		t.Fatalf("failed to build binary: %v", err)
 	}
 	// Clean up binary
-	os.Remove(filepath.Join(root, "village"))
+	_ = os.Remove(filepath.Join(root, "village"))
 }
 
 // TestSimulationEconomyIntegration verifies that simulation and economy packages
@@ -92,7 +92,7 @@ func TestDeploymentBuild(t *testing.T) {
 	root := filepath.Join("..", "..")
 	// Use unique tag to avoid conflicts
 	tag := fmt.Sprintf("village-backend-test-%d", time.Now().UnixNano())
-	cmd := exec.Command("docker", "build", "--target", "backend", "-t", tag, ".")
+	cmd := exec.Command("docker", "build", "--target", "backend", "-t", tag, ".") // #nosec G204
 	cmd.Dir = root
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -100,5 +100,5 @@ func TestDeploymentBuild(t *testing.T) {
 		t.Errorf("failed to build backend Docker image: %v", err)
 	}
 	// Clean up image
-	exec.Command("docker", "rmi", tag).Run()
+	_ = exec.Command("docker", "rmi", tag).Run() // #nosec G204
 }
