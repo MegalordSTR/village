@@ -16,7 +16,7 @@ func NewEnvironmentSystem() *EnvironmentSystem {
 // Update processes one week of environmental simulation.
 // It updates weather, seasons, temperature, soil fertility, natural resources, and wildlife.
 func (e *EnvironmentSystem) Update(week int, state *GameState, rng *rand.Rand) []Event {
-	var events []Event
+	events := make([]Event, 0, 5)
 
 	// Update season based on week of year (1-52)
 	season := calculateSeason(week)

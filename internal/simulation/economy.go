@@ -18,7 +18,7 @@ func NewEconomicSystem() *EconomicSystem {
 
 // Update processes one week of economic simulation.
 func (e *EconomicSystem) Update(week int, state *GameState, rng *rand.Rand) []Event {
-	var events []Event
+	events := make([]Event, 0, 20)
 
 	// 1. Resource consumption based on resident needs
 	events = append(events, e.consumeResourcesByResidents(week, state, rng)...)
@@ -47,7 +47,7 @@ func (e *EconomicSystem) Update(week int, state *GameState, rng *rand.Rand) []Ev
 
 // consumeResourcesByResidents handles food consumption based on resident needs.
 func (e *EconomicSystem) consumeResourcesByResidents(week int, state *GameState, rng *rand.Rand) []Event {
-	var events []Event
+	events := make([]Event, 0, len(state.Residents)*2)
 	if len(state.Residents) == 0 {
 		return events
 	}
@@ -99,7 +99,7 @@ func (e *EconomicSystem) consumeResourcesByResidents(week int, state *GameState,
 
 // consumeMaintenanceResources handles building maintenance.
 func (e *EconomicSystem) consumeMaintenanceResources(week int, state *GameState, rng *rand.Rand) []Event {
-	var events []Event
+	events := make([]Event, 0, len(state.Buildings))
 	if len(state.Buildings) == 0 {
 		return events
 	}
@@ -181,7 +181,7 @@ func (e *EconomicSystem) consumeMaintenanceResources(week int, state *GameState,
 
 // applySpoilage reduces food quantity over time.
 func (e *EconomicSystem) applySpoilage(week int, state *GameState, rng *rand.Rand) []Event {
-	var events []Event
+	events := make([]Event, 0, len(state.Resources))
 	spoilageRate := 0.05 // 5% spoilage per week
 
 	for i := range state.Resources {
@@ -290,7 +290,7 @@ func (e *EconomicSystem) adjustHappinessForWealth(state *GameState) {
 
 // enforceStorageLimits ensures resources do not exceed storage capacity.
 func (e *EconomicSystem) enforceStorageLimits(week int, state *GameState, rng *rand.Rand) []Event {
-	var events []Event
+	events := make([]Event, 0, len(state.Buildings))
 	// Calculate total storage capacity
 	baseCapacity := 100
 	warehouseCapacity := 0

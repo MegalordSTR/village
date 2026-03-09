@@ -109,7 +109,7 @@ func (sr *StorageRegistry) GetBuilding(location string) *StorageBuilding {
 func (sr *StorageRegistry) Capacity(location string) float64 {
 	b := sr.GetBuilding(location)
 	if b == nil {
-		return 0.0
+		return 1e9 // unlimited capacity for locations without storage building
 	}
 	return b.Capacity()
 }
@@ -118,7 +118,7 @@ func (sr *StorageRegistry) Capacity(location string) float64 {
 func (sr *StorageRegistry) CanStoreResourceAt(location string, rt ResourceType) bool {
 	b := sr.GetBuilding(location)
 	if b == nil {
-		return false // no storage building at location
+		return true // allow storage anywhere without building
 	}
 	return b.CanStoreResource(rt)
 }

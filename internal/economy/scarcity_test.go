@@ -158,10 +158,9 @@ func TestScarcityStrategicTradeOff(t *testing.T) {
 }
 
 func TestScarcityResourceDiscovery(t *testing.T) {
-	//lint:ignore SA1019 // deterministic seed needed for test
-	rand.Seed(42) // deterministic seed
+	rng := rand.New(rand.NewSource(42)) // #nosec G404
 	// Discover mine vein
-	mine := DiscoverResource("mine_vein")
+	mine := DiscoverResource("mine_vein", rng)
 	if mine == nil {
 		t.Fatal("expected mine, got nil")
 	}
@@ -179,7 +178,7 @@ func TestScarcityResourceDiscovery(t *testing.T) {
 		t.Errorf("depletion rate out of expected range: %v", m.DepletionRate)
 	}
 	// Discover forest patch
-	forest := DiscoverResource("forest_patch")
+	forest := DiscoverResource("forest_patch", rng)
 	if forest == nil {
 		t.Fatal("expected forest, got nil")
 	}
@@ -194,7 +193,7 @@ func TestScarcityResourceDiscovery(t *testing.T) {
 		t.Errorf("regrowth rate out of expected range: %v", f.RegrowthRate)
 	}
 	// Unknown location returns nil
-	if DiscoverResource("unknown") != nil {
+	if DiscoverResource("unknown", rng) != nil {
 		t.Error("expected nil for unknown location")
 	}
 }
@@ -242,8 +241,8 @@ func TestScarcityIntegration(t *testing.T) {
 		t.Error("scavenge not working")
 	}
 	// Resource discovery
-	rand.Seed(42) //nolint:staticcheck
-	_ = DiscoverResource("mine_vein")
+	rng := rand.New(rand.NewSource(42)) // #nosec G404
+	_ = DiscoverResource("mine_vein", rng)
 	// No assertion, just ensure no panic
 	// Strategic trade-off
 	if !RecommendUse(0.3, 1.0) {

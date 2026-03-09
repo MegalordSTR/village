@@ -257,7 +257,7 @@ func TestProductionDeterministicAcrossAllSystems(t *testing.T) {
 }
 
 func TestCalculateGrowthChance(t *testing.T) {
-	rng := rand.New(rand.NewSource(123))
+	rng := rand.New(rand.NewSource(123)) // #nosec G404
 	env := Environment{
 		SoilFertility: 0.8,
 		Rainfall:      15.0,
@@ -288,7 +288,7 @@ func TestCalculateGrowthChance(t *testing.T) {
 }
 
 func TestCalculateYield(t *testing.T) {
-	rng := rand.New(rand.NewSource(456))
+	rng := rand.New(rand.NewSource(456)) // #nosec G404
 	env := Environment{
 		SoilFertility: 0.7,
 		Rainfall:      12.0,
@@ -492,7 +492,7 @@ func TestProductionDeterministicWithEnvironment(t *testing.T) {
 }
 
 func TestProductionEnvironmentHelpers(t *testing.T) {
-	rng := rand.New(rand.NewSource(123))
+	rng := rand.New(rand.NewSource(123)) // #nosec G404
 	// Test calculateSeason
 	if s := calculateSeason(1); s != "spring" {
 		t.Errorf("week 1 should be spring, got %s", s)
@@ -594,7 +594,7 @@ func TestProductionStateHelpers(t *testing.T) {
 }
 
 func TestProductionEnvironmentEdgeCases(t *testing.T) {
-	rng := rand.New(rand.NewSource(111))
+	rng := rand.New(rand.NewSource(111)) // #nosec G404
 	// calculateWeather for all seasons
 	seasons := []string{"spring", "summer", "autumn", "winter", "unknown"}
 	for _, season := range seasons {

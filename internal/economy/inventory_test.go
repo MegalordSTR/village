@@ -152,9 +152,18 @@ func TestInventory_StorageTypeRestriction(t *testing.T) {
 func TestInventory_CheckAlerts(t *testing.T) {
 	inv := NewInventory()
 	// Add some resources across locations
-	inv.AddResource("loc1", NewResource(ResourceGrain, 50.0))
-	inv.AddResource("loc2", NewResource(ResourceGrain, 30.0))
-	inv.AddResource("loc1", NewResource(ResourceWood, 10.0))
+	err := inv.AddResource("loc1", NewResource(ResourceGrain, 50.0))
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = inv.AddResource("loc2", NewResource(ResourceGrain, 30.0))
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = inv.AddResource("loc1", NewResource(ResourceWood, 10.0))
+	if err != nil {
+		t.Fatal(err)
+	}
 	thresholds := AlertThreshold{
 		ResourceGrain: 100.0, // total grain across locations = 80 < 100 -> alert
 		ResourceWood:  5.0,   // wood total 10 > 5, no alert

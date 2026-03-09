@@ -102,16 +102,25 @@ func TestApplySpoilageToInventory(t *testing.T) {
 		Quality: StorageQualityNormal,
 		Level:   1,
 	}
-	storageReg.AddBuilding(granary)
+	err := storageReg.AddBuilding(granary)
+	if err != nil {
+		t.Fatal(err)
+	}
 	inv := NewInventoryWithStorage(storageReg)
 	// Add some grain
 	grain := NewResource(ResourceGrain, 500.0)
 	grain.Produced = GameDate{Year: 1, Week: 1}
-	inv.AddResource("granary1", grain)
+	err = inv.AddResource("granary1", grain)
+	if err != nil {
+		t.Fatal(err)
+	}
 	// Add vegetables elsewhere with no storage building (should not spoil)
 	veg := NewResource(ResourceVegetables, 300.0)
 	veg.Produced = GameDate{Year: 1, Week: 1}
-	inv.AddResource("outdoor1", veg)
+	err = inv.AddResource("outdoor1", veg)
+	if err != nil {
+		t.Fatal(err)
+	}
 	current := GameDate{Year: 1, Week: 10}
 	totals := ApplySpoilageToInventory(inv, storageReg, current)
 	// Only grain should spoil

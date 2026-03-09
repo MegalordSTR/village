@@ -135,7 +135,7 @@ func TestSpecialMaterialInheritance(t *testing.T) {
 }
 
 func TestQualityFromSkill(t *testing.T) {
-	rng := rand.New(rand.NewSource(42))
+	rng := rand.New(rand.NewSource(42)) // #nosec G404
 	tests := []struct {
 		skill float64
 		want  QualityTier

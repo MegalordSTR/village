@@ -14,7 +14,7 @@ type RNG struct {
 
 // NewRNG creates a new RNG seeded with the given value.
 func NewRNG(seed int64) *RNG {
-	return &RNG{state: uint64(seed)}
+	return &RNG{state: uint64(seed)} // #nosec G115
 }
 
 // Uint64 returns a pseudo-random 64-bit value.
@@ -35,7 +35,7 @@ func (r *RNG) Intn(n int) int {
 	}
 	// Simple modulo with rejection to avoid bias for now
 	// In production, we'd implement a more robust method
-	return int(r.Uint64() % uint64(n))
+	return int(r.Uint64() % uint64(n)) // #nosec G115
 }
 
 // Float64 returns a random float64 in [0.0, 1.0).
@@ -124,5 +124,5 @@ func (s *randSource) Uint64() uint64 {
 // Rand returns a *rand.Rand that uses this RNG as its source.
 // This allows the RNG to be used wherever *rand.Rand is expected.
 func (r *RNG) Rand() *rand.Rand {
-	return rand.New(&randSource{rng: r})
+	return rand.New(&randSource{rng: r}) // #nosec G404
 }

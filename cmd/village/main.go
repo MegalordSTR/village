@@ -10,7 +10,7 @@ const version = "0.1.0"
 
 func healthHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("OK")) //nolint:errcheck
+	_, _ = w.Write([]byte("OK"))
 }
 
 func main() {

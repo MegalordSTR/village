@@ -11,7 +11,7 @@ type ProductionChainStep struct {
 
 // ProductionChain returns the chain of recipes needed to produce the given resource type.
 // It returns a slice of steps ordered from raw materials to final product.
-func ProductionChain(output ResourceType) []ProductionChainStep {
+func ProductionChain(output ResourceType) []ProductionChainStep { //nolint:gocognit
 	// Build mapping from output type to recipe(s) that produce it.
 	recipes := AllRecipes()
 	outputToRecipe := make(map[ResourceType][]*Recipe)
