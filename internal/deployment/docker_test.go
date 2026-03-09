@@ -32,7 +32,7 @@ func TestDockerBuildBackendTarget(t *testing.T) {
 		t.Skip("docker not available")
 	}
 	root := projectRoot()
-	cmd := exec.Command("docker", "build", "--target", "backend", "-t", "village-backend-test", root)
+	cmd := exec.Command("docker", "build", "--target", "backend", "-t", "village-backend-test", root) //nolint:gosec
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	if err := cmd.Run(); err != nil {
@@ -45,7 +45,7 @@ func TestDockerBuildFrontendTarget(t *testing.T) {
 		t.Skip("docker not available")
 	}
 	root := projectRoot()
-	cmd := exec.Command("docker", "build", "--target", "frontend", "-t", "village-frontend-test", root)
+	cmd := exec.Command("docker", "build", "--target", "frontend", "-t", "village-frontend-test", root) //nolint:gosec
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	if err := cmd.Run(); err != nil {

@@ -1,6 +1,6 @@
 # Village Simulation Makefile
 
-.PHONY: build test run clean dev coverage vet fmt build-backend build-frontend deploy-dry-run deploy check-go-version
+.PHONY: build test run clean dev coverage vet fmt lint lint-fix build-backend build-frontend deploy-dry-run deploy check-go-version
 
 # Default target
 all: build
@@ -44,6 +44,12 @@ vet:
 
 fmt:
 	go fmt ./...
+
+lint:
+	golangci-lint run ./...
+
+lint-fix:
+	golangci-lint run --fix ./...
 
 # Docker targets
 docker-build:

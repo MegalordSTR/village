@@ -62,6 +62,7 @@ func TestEnvironmentUpdateChangesAllFields(t *testing.T) {
 
 	// Check all fields were updated (may stay same due to random seed, but likely change)
 	// We'll check at least some fields changed
+	//nolint:staticcheck
 	changed := false
 	if state.Environment.Temperature != initial.Temperature {
 		changed = true

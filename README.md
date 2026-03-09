@@ -58,6 +58,25 @@ make test
 # Code quality
 make vet
 make fmt
+make lint
+
+## Linting
+
+This project uses [golangci-lint](https://golangci-lint.run/) for static analysis. To install:
+
+```bash
+# Install golangci-lint (requires Go 1.25+)
+curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.60.0
+```
+
+Run linting:
+
+```bash
+make lint          # Run all linters
+make lint-fix      # Auto-fix fixable issues
+```
+
+Configuration is in `.golangci.yml`. The CI pipeline runs linting on every push and pull request.
 ```
 
 #### Frontend
