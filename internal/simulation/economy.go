@@ -323,17 +323,21 @@ func (e *EconomicSystem) enforceStorageLimits(week int, state *GameState, rng *r
 	}
 
 	// Enforce limit per resource type (each resource type cannot exceed total capacity)
+	// Aggregate quantities per resource type
+	typeQuantities := make(map[economy.ResourceType]float64)
 	for _, r := range resources {
-		totalQty := r.Quantity
+		typeQuantities[r.Type] += r.Quantity
+	}
+	for rt, totalQty := range typeQuantities {
 		if totalQty <= float64(totalCapacity) {
 			continue
 		}
 		excess := totalQty - float64(totalCapacity)
 		// Remove excess from inventory (from global location)
-		removed, err := state.Inventory.RemoveResource("global", r.Type, excess)
+		removed, err := state.Inventory.RemoveResource("global", rt, excess)
 		if err != nil {
 			// Should not happen under normal operation; log WARN
-			log.Printf("WARN: operation=enforceStorageLimits resource=%s excess=%f error=%v", r.Type, excess, err)
+			log.Printf("WARN: operation=enforceStorageLimits resource=%s excess=%f error=%v", rt, excess, err)
 			continue
 		}
 		if removed > 0 {
@@ -342,7 +346,7 @@ func (e *EconomicSystem) enforceStorageLimits(week int, state *GameState, rng *r
 				Type:      "storage",
 				Timestamp: formatWeekTimestamp(state.Calendar.Year, week),
 				Data: map[string]interface{}{
-					"resource": string(r.Type),
+					"resource": string(rt),
 					"excess":   int(removed),
 					"capacity": totalCapacity,
 				},

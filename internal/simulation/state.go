@@ -144,18 +144,18 @@ func (gs *GameState) MarshalJSON() ([]byte, error) {
 // UnmarshalJSON customizes JSON deserialization for GameState.
 func (gs *GameState) UnmarshalJSON(data []byte) error {
 	var aux struct {
-		ID          string      `json:"id"`
-		Version     int         `json:"version"`
-		Seed        int64       `json:"seed"`
-		RNG         *RNG        `json:"rng"`
-		Calendar    Calendar    `json:"calendar"`
-		Village     Village     `json:"village"`
-		Residents   []Resident  `json:"residents"`
-		Buildings   []Building  `json:"buildings"`
-		History     []Event     `json:"history"`
-		Policies    []Policy    `json:"policies"`
-		Environment Environment `json:"environment"`
-		Resources   []Resource  `json:"resources"`
+		ID          string          `json:"id"`
+		Version     int             `json:"version"`
+		Seed        int64           `json:"seed"`
+		RNG         *RNG            `json:"rng"`
+		Calendar    Calendar        `json:"calendar"`
+		Village     Village         `json:"village"`
+		Residents   []Resident      `json:"residents"`
+		Buildings   []Building      `json:"buildings"`
+		History     []Event         `json:"history"`
+		Policies    []Policy        `json:"policies"`
+		Environment Environment     `json:"environment"`
+		Resources   json.RawMessage `json:"resources"`
 	}
 	if err := json.Unmarshal(data, &aux); err != nil {
 		return err
@@ -172,9 +172,23 @@ func (gs *GameState) UnmarshalJSON(data []byte) error {
 	gs.Policies = aux.Policies
 	gs.Environment = aux.Environment
 	gs.Inventory = economy.NewInventory()
-	if aux.Resources != nil {
+	if len(aux.Resources) > 0 {
+		// Parse resources array with length limit before full unmarshaling
+		var rawResources []json.RawMessage
+		if err := json.Unmarshal(aux.Resources, &rawResources); err != nil {
+			return err
+		}
+		if len(rawResources) > maxResourcesPerLoad {
+			return fmt.Errorf("resource array too large: %d > %d", len(rawResources), maxResourcesPerLoad)
+		}
+		resources := make([]Resource, len(rawResources))
+		for i, raw := range rawResources {
+			if err := json.Unmarshal(raw, &resources[i]); err != nil {
+				return err
+			}
+		}
 		produced := economy.GameDate{Year: gs.Calendar.Year, Week: gs.Calendar.Week}
-		if err := LoadInventoryFromGameState(gs.Inventory, aux.Resources, "global", produced); err != nil {
+		if err := LoadInventoryFromGameState(gs.Inventory, resources, "global", produced); err != nil {
 			return err
 		}
 	}
