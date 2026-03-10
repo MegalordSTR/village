@@ -1,0 +1,58 @@
+{
+  "ws_id": "00-004-13",
+  "feature_id": "F004",
+  "verdict": "PASS",
+  "commit": "27f947d",
+  "quality_gates": {
+    "tests_pass": true,
+    "lint_clean": true,
+    "coverage_pct": 91.2,
+    "coverage_threshold": 80,
+    "max_file_loc": 184,
+    "build_ok": true,
+    "vet_ok": true
+  },
+  "ac_evidence": [
+    {
+      "ac": "StringToResourceType returns an error for unknown strings instead of mapping to ResourceGrain",
+      "met": true,
+      "evidence": "StringToResourceType in internal/simulation/economy_integration.go returns error for unknown strings; TestStringToResourceType_Unknown verifies error"
+    },
+    {
+      "ac": "IsKnownType remains unchanged (still returns false for unknown strings)",
+      "met": true,
+      "evidence": "IsKnownType unchanged; still returns false for unknown strings (lines 66-77)"
+    },
+    {
+      "ac": "LoadInventoryFromGameState rejects unknown resource types with a clear error message",
+      "met": true,
+      "evidence": "LoadInventoryFromGameState calls ToEconomyResource which propagates error; TestLoadInventoryFromGameState_UnknownResource verifies rejection"
+    },
+    {
+      "ac": "LoadInventoryFromGameState enforces a maximum resource count (e.g., 10,000 resources per load) to prevent memory exhaustion",
+      "met": true,
+      "evidence": "maxResourcesPerLoad constant = 10000; size check at line 102; TestLoadInventoryFromGameState_SizeLimit verifies oversized array rejected"
+    },
+    {
+      "ac": "GameState.AddResource already rejects unknown types via IsKnownType (no change needed)",
+      "met": true,
+      "evidence": "GameState.AddResource unchanged; still uses IsKnownType (line 71)"
+    },
+    {
+      "ac": "Log spam from unknown resource warnings is eliminated (errors replace warnings)",
+      "met": true,
+      "evidence": "Warning log removed from StringToResourceType; error returned instead"
+    },
+    {
+      "ac": "All callers of StringToResourceType are updated to handle the new error return",
+      "met": true,
+      "evidence": "production.go handles error (lines 67-74); ToEconomyResource propagates error; tests updated"
+    },
+    {
+      "ac": "Tests are updated to verify error behavior and size limits",
+      "met": true,
+      "evidence": "TestStringToResourceType_KnownLegacy, TestStringToResourceType_Unknown, TestStringToResourceType_ValidType updated; new TestLoadInventoryFromGameState_SizeLimit and TestLoadInventoryFromGameState_UnknownResource added"
+    }
+  ],
+  "existing_work_summary": "StringToResourceType mapped unknown types to ResourceGrain with warning log; LoadInventoryFromGameState had no size limit; IsKnownType existed; GameState.AddResource used IsKnownType; tests for StringToResourceType existed but needed updating."
+}
