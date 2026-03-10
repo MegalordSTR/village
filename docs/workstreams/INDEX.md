@@ -99,6 +99,9 @@ graph TD
 | [WS-004-09](backlog/00-004-09.md) | Remove Unused Conversion Package and Fix Legacy String Comparisons | backlog | Independent | MEDIUM | ~100 |
 | [WS-004-10](backlog/00-004-10.md) | Consolidate Storage System – Remove Dual Storage and Legacy Resources Slice | backlog | WS-004-08, WS-004-07 | MEDIUM | ~300 |
 | [WS-004-11](backlog/00-004-11.md) | Add Observability (Logging/Metrics) for Inventory Operations | backlog | WS-004-10 | SMALL | ~60 |
+| [WS-004-12](backlog/00-004-12.md) | Add Infinity and NaN Validation to Resource.Validate and Inventory Methods | backlog | Independent | SMALL | ~30 |
+| [WS-004-13](backlog/00-004-13.md) | Reject Unknown Resource Types and Add JSON Array Size Limits | backlog | Independent | SMALL/MEDIUM | ~80 |
+| [WS-004-14](backlog/00-004-14.md) | Eliminate Silent Error Handling in Economic Loop | backlog | Independent | SMALL | ~40 |
 
 #### Dependency Graph
 

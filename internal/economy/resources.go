@@ -41,9 +41,12 @@ func NewResource(rt ResourceType, quantity float64) Resource {
 	}
 }
 
-// Validate checks if the resource is valid (type valid, quantity non-negative).
+// Validate checks if the resource is valid (type valid, quantity non-negative finite number).
 func (r Resource) Validate() bool {
 	if !IsValidType(r.Type) {
+		return false
+	}
+	if math.IsNaN(r.Quantity) || math.IsInf(r.Quantity, 0) {
 		return false
 	}
 	if r.Quantity < 0 {

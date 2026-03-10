@@ -205,6 +205,16 @@ func TestInventory_AddResource_Invalid(t *testing.T) {
 	if err == nil {
 		t.Error("expected error for negative quantity")
 	}
+	// NaN quantity
+	err = inv.AddResource("loc", Resource{Type: ResourceGrain, Quantity: math.NaN()})
+	if err == nil {
+		t.Error("expected error for NaN quantity")
+	}
+	// Inf quantity
+	err = inv.AddResource("loc", Resource{Type: ResourceGrain, Quantity: math.Inf(1)})
+	if err == nil {
+		t.Error("expected error for Inf quantity")
+	}
 }
 
 func TestInventory_RemoveResource_InvalidQuantity(t *testing.T) {
