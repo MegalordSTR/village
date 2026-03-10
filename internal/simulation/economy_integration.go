@@ -136,8 +136,7 @@ func ExportInventoryToGameState(inv *economy.Inventory) []Resource {
 }
 
 // AddProducedResource adds a newly produced resource to the game state.
-// If inventory exists, adds with proper location and production date.
-// Otherwise falls back to the legacy Resources slice.
+// Adds with proper location and production date to Inventory (always present).
 func AddProducedResource(state *GameState, building *Building, rt economy.ResourceType, quantity int, qualityFloat float64) error {
 	qualityTier := economy.FloatToQuality(qualityFloat)
 	er := economy.Resource{
@@ -148,60 +147,21 @@ func AddProducedResource(state *GameState, building *Building, rt economy.Resour
 		Produced: economy.GameDate{Year: state.Calendar.Year, Week: state.Calendar.Week},
 		Value:    economy.BaseValue(rt),
 	}
-	if state.Inventory != nil {
-		return state.Inventory.AddResource(building.Location, er)
-	}
-	// Fallback to legacy Resources slice
-	return state.AddResource(FromEconomyResource(er))
+	return state.Inventory.AddResource(building.Location, er)
 }
 
 // ConsumeResourceFromState consumes up to the requested amount of a resource type.
-// If inventory exists, consumes from it; otherwise consumes from the Resources slice.
-// Returns the amount actually consumed.
+// Uses Inventory (always present). Returns the amount actually consumed.
 func ConsumeResourceFromState(state *GameState, rt economy.ResourceType, amount int) (int, error) {
-	if state.Inventory != nil {
-		consumed, err := state.Inventory.RemoveResource("global", rt, float64(amount))
-		if err != nil {
-			return 0, err
-		}
-		return int(consumed), nil
+	consumed, err := state.Inventory.RemoveResource("global", rt, float64(amount))
+	if err != nil {
+		return 0, err
 	}
-	// Legacy consumption from Resources slice
-	consumed := 0
-	for i := range state.Resources {
-		if state.Resources[i].Type == rt && state.Resources[i].Quantity > 0 {
-			available := state.Resources[i].Quantity
-			take := amount - consumed
-			if take > available {
-				take = available
-			}
-			state.Resources[i].Quantity -= take
-			consumed += take
-			if state.Resources[i].Quantity <= 0 {
-				// Remove zero quantity resource
-				state.Resources = append(state.Resources[:i], state.Resources[i+1:]...)
-				break // need to restart iteration but fine for now
-			}
-			if consumed >= amount {
-				break
-			}
-		}
-	}
-	return consumed, nil
+	return int(consumed), nil
 }
 
 // GetAvailableResourceFromState returns the total quantity of a resource type available.
-// If inventory exists, queries it; otherwise sums over the Resources slice.
+// Uses Inventory (always present).
 func GetAvailableResourceFromState(state *GameState, rt economy.ResourceType) int {
-	if state.Inventory != nil {
-		return int(state.Inventory.GetAvailable("global", rt))
-	}
-	// Legacy sum over Resources slice
-	total := 0
-	for _, res := range state.Resources {
-		if res.Type == rt {
-			total += res.Quantity
-		}
-	}
-	return total
+	return int(state.Inventory.GetAvailable("global", rt))
 }

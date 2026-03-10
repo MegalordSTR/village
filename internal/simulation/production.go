@@ -262,10 +262,6 @@ func processCrafting(week int, state *GameState, rng *rand.Rand) []Event {
 			// Should not happen since we checked availability
 			continue
 		}
-		// If inventory was used, sync Resources slice for any remaining legacy code
-		if state.Inventory != nil {
-			state.SyncResources()
-		}
 
 		// Produce tool
 		toolsProduced := 1 * b.Level
@@ -335,10 +331,7 @@ func processConstruction(week int, state *GameState, rng *rand.Rand) []Event { /
 			consumedWood, _ := ConsumeResourceFromState(state, economy.ResourceWood, woodNeeded)
 			// Consume stone
 			consumedStone, _ := ConsumeResourceFromState(state, economy.ResourceStone, stoneNeeded)
-			// If inventory was used, sync Resources slice for any remaining legacy code
-			if state.Inventory != nil {
-				state.SyncResources()
-			}
+
 			_ = consumedWood
 			_ = consumedStone // silence unused variable warnings
 		}

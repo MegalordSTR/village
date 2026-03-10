@@ -120,12 +120,7 @@ func (s *SocialSystem) updateNeeds(resident *Resident, state *GameState, rng *ra
 
 // getFoodAvailability estimates food availability from resources.
 func (s *SocialSystem) getFoodAvailability(state *GameState) float64 {
-	foodCount := 0
-	for _, r := range state.Resources {
-		if StringToResourceType(string(r.Type)) == economy.ResourceGrain {
-			foodCount += r.Quantity
-		}
-	}
+	foodCount := int(state.Inventory.GetAvailable("global", economy.ResourceGrain))
 	// Convert to per-resident availability
 	residentCount := len(state.Residents)
 	if residentCount == 0 {

@@ -72,7 +72,7 @@ func TestEventDiseaseOutbreak(t *testing.T) {
 	if err := state.AddResource(Resource{Type: economy.ResourceGrain, Quantity: 100, Quality: 1.0}); err != nil {
 		t.Fatalf("AddResource failed: %v", err)
 	}
-	initialFood := state.Resources[0].Quantity
+	initialFood := int(state.Inventory.GetAvailable("global", economy.ResourceGrain))
 	events := evt.Update(1, state, state.RNG.Rand())
 	if len(events) == 0 {
 		t.Fatal("expected disease outbreak event, got none")
@@ -82,8 +82,9 @@ func TestEventDiseaseOutbreak(t *testing.T) {
 	}
 	// Check food reduction (10%)
 	expectedFood := initialFood - int(float64(initialFood)*0.1)
-	if state.Resources[0].Quantity != expectedFood {
-		t.Errorf("food quantity after disease: got %d, want %d", state.Resources[0].Quantity, expectedFood)
+	finalFood := int(state.Inventory.GetAvailable("global", economy.ResourceGrain))
+	if finalFood != expectedFood {
+		t.Errorf("food quantity after disease: got %d, want %d", finalFood, expectedFood)
 	}
 }
 
@@ -96,7 +97,7 @@ func TestEventGoodHarvest(t *testing.T) {
 	if err := state.AddResource(Resource{Type: economy.ResourceGrain, Quantity: 100, Quality: 1.0}); err != nil {
 		t.Fatalf("AddResource failed: %v", err)
 	}
-	initialFood := state.Resources[0].Quantity
+	initialFood := int(state.Inventory.GetAvailable("global", economy.ResourceGrain))
 	events := evt.Update(1, state, state.RNG.Rand())
 	if len(events) == 0 {
 		t.Fatal("expected good harvest event, got none")
@@ -105,8 +106,9 @@ func TestEventGoodHarvest(t *testing.T) {
 		t.Errorf("expected event type 'good_harvest', got %q", events[0].Type)
 	}
 	expectedFood := initialFood + int(float64(initialFood)*0.2)
-	if state.Resources[0].Quantity != expectedFood {
-		t.Errorf("food quantity after good harvest: got %d, want %d", state.Resources[0].Quantity, expectedFood)
+	finalFood := int(state.Inventory.GetAvailable("global", economy.ResourceGrain))
+	if finalFood != expectedFood {
+		t.Errorf("food quantity after good harvest: got %d, want %d", finalFood, expectedFood)
 	}
 }
 
@@ -119,7 +121,7 @@ func TestEventBadHarvest(t *testing.T) {
 	if err := state.AddResource(Resource{Type: economy.ResourceGrain, Quantity: 100, Quality: 1.0}); err != nil {
 		t.Fatalf("AddResource failed: %v", err)
 	}
-	initialFood := state.Resources[0].Quantity
+	initialFood := int(state.Inventory.GetAvailable("global", economy.ResourceGrain))
 	events := evt.Update(1, state, state.RNG.Rand())
 	if len(events) == 0 {
 		t.Fatal("expected bad harvest event, got none")
@@ -128,8 +130,9 @@ func TestEventBadHarvest(t *testing.T) {
 		t.Errorf("expected event type 'bad_harvest', got %q", events[0].Type)
 	}
 	expectedFood := initialFood - int(float64(initialFood)*0.15)
-	if state.Resources[0].Quantity != expectedFood {
-		t.Errorf("food quantity after bad harvest: got %d, want %d", state.Resources[0].Quantity, expectedFood)
+	finalFood := int(state.Inventory.GetAvailable("global", economy.ResourceGrain))
+	if finalFood != expectedFood {
+		t.Errorf("food quantity after bad harvest: got %d, want %d", finalFood, expectedFood)
 	}
 }
 
@@ -207,8 +210,8 @@ func TestAdjustResourceZeroQuantity(t *testing.T) {
 		t.Fatal("expected disease outbreak event")
 	}
 	// Quantity should stay zero
-	if state.Resources[0].Quantity != 0 {
-		t.Errorf("food quantity should remain zero, got %d", state.Resources[0].Quantity)
+	if int(state.Inventory.GetAvailable("global", economy.ResourceGrain)) != 0 {
+		t.Errorf("food quantity should remain zero, got %d", int(state.Inventory.GetAvailable("global", economy.ResourceGrain)))
 	}
 }
 

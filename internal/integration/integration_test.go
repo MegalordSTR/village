@@ -68,8 +68,12 @@ func TestSimulationEconomyIntegration(t *testing.T) {
 	// Verify that resources have changed (quantity may have been consumed/produced)
 	// At least one resource should have changed quantity (or remain same).
 	// We'll just ensure state is still valid.
-	if len(state.Resources) < 2 {
-		t.Errorf("expected at least 2 resources, got %d", len(state.Resources))
+	resourceCount := 0
+	for _, list := range state.Inventory.ResourcesMap() {
+		resourceCount += len(list)
+	}
+	if resourceCount < 2 {
+		t.Errorf("expected at least 2 resources, got %d", resourceCount)
 	}
 
 	// Use economy package to calculate something

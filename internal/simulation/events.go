@@ -145,17 +145,28 @@ var eventDefinitions = []eventDef{
 }
 
 // adjustResource modifies a resource quantity by a percentage (positive or negative).
-// If the resource doesn't exist, it does nothing.
+// Uses Inventory (always present). If the resource doesn't exist, it does nothing.
 func adjustResource(state *GameState, resourceType economy.ResourceType, percent float64) {
-	for i := range state.Resources {
-		if state.Resources[i].Type == resourceType {
-			change := int(float64(state.Resources[i].Quantity) * percent)
-			state.Resources[i].Quantity += change
-			if state.Resources[i].Quantity < 0 {
-				state.Resources[i].Quantity = 0
-			}
-			break
+	current := state.Inventory.GetAvailable("global", resourceType)
+	if current <= 0 {
+		return
+	}
+	change := current * percent
+	if change > 0 {
+		// Add resource
+		r := economy.Resource{
+			Type:     resourceType,
+			Quantity: change,
+			Quality:  economy.QualityNormal,
+			Location: "global",
+			Produced: economy.GameDate{Year: state.Calendar.Year, Week: state.Calendar.Week},
+			Value:    economy.BaseValue(resourceType),
 		}
+		_ = state.Inventory.AddResource("global", r) // ignore error
+	} else if change < 0 {
+		// Remove resource (positive amount)
+		amount := -change
+		_, _ = state.Inventory.RemoveResource("global", resourceType, amount) // ignore error
 	}
 }
 

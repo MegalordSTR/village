@@ -6,6 +6,11 @@ import (
 	"testing"
 )
 
+// productionResourcesSlice returns all resources in the state's inventory as a simulation.Resource slice.
+func productionResourcesSlice(state *GameState) []Resource {
+	return ExportInventoryToGameState(state.Inventory)
+}
+
 func TestProductionSystemImplementsSystem(t *testing.T) {
 	var _ System = (*ProductionSystem)(nil)
 }
@@ -61,7 +66,7 @@ func TestProductionAgriculture(t *testing.T) {
 		Metadata:   nil,
 	})
 
-	initialResources := len(state.Resources)
+	initialResources := len(productionResourcesSlice(state))
 
 	// Run several weeks to allow growth and harvest
 	for week := 1; week <= 10; week++ {
@@ -69,14 +74,14 @@ func TestProductionAgriculture(t *testing.T) {
 	}
 
 	// Expect at least some resources added
-	if len(state.Resources) <= initialResources {
+	if len(productionResourcesSlice(state)) <= initialResources {
 		t.Errorf("expected resources to increase, got %d (initial %d)",
-			len(state.Resources), initialResources)
+			len(productionResourcesSlice(state)), initialResources)
 	}
 
 	// Ensure at least one wheat resource exists
 	wheatFound := false
-	for _, res := range state.Resources {
+	for _, res := range productionResourcesSlice(state) {
 		if res.Type == economy.ResourceGrain {
 			wheatFound = true
 			break
@@ -101,7 +106,7 @@ func TestProductionMining(t *testing.T) {
 		Metadata:   nil,
 	})
 
-	initialResources := len(state.Resources)
+	initialResources := len(productionResourcesSlice(state))
 
 	// Run several weeks
 	for week := 1; week <= 10; week++ {
@@ -110,7 +115,7 @@ func TestProductionMining(t *testing.T) {
 
 	// Expect ore resources added
 	oreFound := false
-	for _, res := range state.Resources {
+	for _, res := range productionResourcesSlice(state) {
 		if res.Type == economy.ResourceIronOre {
 			oreFound = true
 			break
@@ -119,9 +124,9 @@ func TestProductionMining(t *testing.T) {
 	if !oreFound {
 		t.Error("expected iron ore resource to be produced by mining")
 	}
-	if len(state.Resources) <= initialResources {
+	if len(productionResourcesSlice(state)) <= initialResources {
 		t.Errorf("expected resources to increase, got %d (initial %d)",
-			len(state.Resources), initialResources)
+			len(productionResourcesSlice(state)), initialResources)
 	}
 }
 
@@ -148,7 +153,7 @@ func TestProductionCrafting(t *testing.T) {
 
 	// Expect tool resources added
 	toolFound := false
-	for _, res := range state.Resources {
+	for _, res := range productionResourcesSlice(state) {
 		if res.Type == economy.ResourceTools {
 			toolFound = true
 			break
@@ -159,7 +164,7 @@ func TestProductionCrafting(t *testing.T) {
 	}
 	// Ore should be consumed (10 - 2 = 8 remaining)
 	oreCount := 0
-	for _, res := range state.Resources {
+	for _, res := range productionResourcesSlice(state) {
 		if res.Type == economy.ResourceIronOre {
 			oreCount += res.Quantity
 		}
@@ -254,17 +259,17 @@ func TestProductionDeterministicAcrossAllSystems(t *testing.T) {
 	}
 
 	// Compare resource counts
-	if len(state1.Resources) != len(state2.Resources) {
+	if len(productionResourcesSlice(state1)) != len(productionResourcesSlice(state2)) {
 		t.Errorf("resource count mismatch: %d vs %d",
-			len(state1.Resources), len(state2.Resources))
+			len(productionResourcesSlice(state1)), len(productionResourcesSlice(state2)))
 	}
 	// Compare total quantity per type
 	quant1 := make(map[string]int)
 	quant2 := make(map[string]int)
-	for _, res := range state1.Resources {
+	for _, res := range productionResourcesSlice(state1) {
 		quant1[string(res.Type)] += res.Quantity
 	}
-	for _, res := range state2.Resources {
+	for _, res := range productionResourcesSlice(state2) {
 		quant2[string(res.Type)] += res.Quantity
 	}
 	for typ, q1 := range quant1 {
@@ -337,9 +342,9 @@ func TestProductionAgricultureNoFarm(t *testing.T) {
 	prod := NewProductionSystem()
 	state := NewGameState("test", 789)
 	// No farm buildings
-	initialResources := len(state.Resources)
+	initialResources := len(productionResourcesSlice(state))
 	prod.Update(1, state, state.RNG.Rand())
-	if len(state.Resources) != initialResources {
+	if len(productionResourcesSlice(state)) != initialResources {
 		t.Error("resources should not change without farms")
 	}
 }
@@ -378,9 +383,9 @@ func TestProductionCraftingNoOre(t *testing.T) {
 		Level:    1,
 	})
 	// No ore resources
-	initialResources := len(state.Resources)
+	initialResources := len(productionResourcesSlice(state))
 	prod.Update(1, state, state.RNG.Rand())
-	if len(state.Resources) != initialResources {
+	if len(productionResourcesSlice(state)) != initialResources {
 		t.Error("resources should not change without ore")
 	}
 }
@@ -394,9 +399,9 @@ func TestProductionConstructionNoMaterials(t *testing.T) {
 		Workers:  []string{"w1"},
 	})
 	// No wood/stone
-	initialResources := len(state.Resources)
+	initialResources := len(productionResourcesSlice(state))
 	prod.Update(1, state, state.RNG.Rand())
-	if len(state.Resources) != initialResources {
+	if len(productionResourcesSlice(state)) != initialResources {
 		t.Error("resources should not change without materials")
 	}
 	// Progress should still increase due to workers
@@ -444,7 +449,7 @@ func TestProductionIntegrationWithEnvironment(t *testing.T) {
 	}
 	// Ensure some production happened (maybe)
 	// At least resources changed
-	if len(state.Resources) == 0 {
+	if len(productionResourcesSlice(state)) == 0 {
 		t.Error("resources should exist")
 	}
 }
@@ -500,16 +505,16 @@ func TestProductionDeterministicWithEnvironment(t *testing.T) {
 		t.Errorf("temperature mismatch: %f vs %f", state1.Environment.Temperature, state2.Environment.Temperature)
 	}
 	// Compare resource counts
-	if len(state1.Resources) != len(state2.Resources) {
-		t.Errorf("resource count mismatch: %d vs %d", len(state1.Resources), len(state2.Resources))
+	if len(productionResourcesSlice(state1)) != len(productionResourcesSlice(state2)) {
+		t.Errorf("resource count mismatch: %d vs %d", len(productionResourcesSlice(state1)), len(productionResourcesSlice(state2)))
 	}
 	// Compare each resource type total quantity
 	quant1 := make(map[string]int)
 	quant2 := make(map[string]int)
-	for _, res := range state1.Resources {
+	for _, res := range productionResourcesSlice(state1) {
 		quant1[string(res.Type)] += res.Quantity
 	}
-	for _, res := range state2.Resources {
+	for _, res := range productionResourcesSlice(state2) {
 		quant2[string(res.Type)] += res.Quantity
 	}
 	for typ, q1 := range quant1 {
@@ -733,7 +738,7 @@ func TestProductionTurnProcessor(t *testing.T) {
 		t.Errorf("expected week 2, got %d", state.Calendar.Week)
 	}
 	// Resources may have changed
-	if len(state.Resources) == 0 {
+	if len(productionResourcesSlice(state)) == 0 {
 		t.Error("resources should exist")
 	}
 }

@@ -54,22 +54,12 @@ func TestEconomyUpdateConsumesFood(t *testing.T) {
 		t.Fatalf("AddResource failed: %v", err)
 	}
 
-	initialFood := 0
-	for _, r := range state.Resources {
-		if r.Type == economy.ResourceGrain {
-			initialFood = r.Quantity
-		}
-	}
+	initialFood := int(state.Inventory.GetAvailable("global", economy.ResourceGrain))
 
 	events := econ.Update(state.Calendar.Week, state, state.RNG.Rand())
 
 	// Should consume some food
-	finalFood := 0
-	for _, r := range state.Resources {
-		if r.Type == economy.ResourceGrain {
-			finalFood = r.Quantity
-		}
-	}
+	finalFood := int(state.Inventory.GetAvailable("global", economy.ResourceGrain))
 	if finalFood >= initialFood {
 		t.Errorf("food consumption didn't happen: initial %d, final %d", initialFood, finalFood)
 	}
@@ -97,29 +87,13 @@ func TestEconomyUpdateBuildingMaintenance(t *testing.T) {
 		t.Fatalf("AddResource failed: %v", err)
 	}
 
-	initialWood := 0
-	initialStone := 0
-	for _, r := range state.Resources {
-		if r.Type == "wood" {
-			initialWood = r.Quantity
-		}
-		if r.Type == "stone" {
-			initialStone = r.Quantity
-		}
-	}
+	initialWood := int(state.Inventory.GetAvailable("global", economy.ResourceWood))
+	initialStone := int(state.Inventory.GetAvailable("global", economy.ResourceStone))
 
 	events := econ.Update(state.Calendar.Week, state, state.RNG.Rand())
 
-	finalWood := 0
-	finalStone := 0
-	for _, r := range state.Resources {
-		if r.Type == "wood" {
-			finalWood = r.Quantity
-		}
-		if r.Type == "stone" {
-			finalStone = r.Quantity
-		}
-	}
+	finalWood := int(state.Inventory.GetAvailable("global", economy.ResourceWood))
+	finalStone := int(state.Inventory.GetAvailable("global", economy.ResourceStone))
 
 	// Maintenance should consume some wood/stone
 	if finalWood >= initialWood && finalStone >= initialStone {
@@ -146,24 +120,14 @@ func TestEconomyFoodSpoilage(t *testing.T) {
 		t.Fatalf("AddResource failed: %v", err)
 	}
 
-	initialFood := 0
-	for _, r := range state.Resources {
-		if r.Type == economy.ResourceGrain {
-			initialFood = r.Quantity
-		}
-	}
+	initialFood := int(state.Inventory.GetAvailable("global", economy.ResourceGrain))
 
 	// Run multiple weeks to allow spoilage
 	for week := 1; week <= 4; week++ {
 		_ = econ.Update(week, state, state.RNG.Rand())
 	}
 
-	finalFood := 0
-	for _, r := range state.Resources {
-		if r.Type == economy.ResourceGrain {
-			finalFood = r.Quantity
-		}
-	}
+	finalFood := int(state.Inventory.GetAvailable("global", economy.ResourceGrain))
 
 	// Food should spoil over time
 	if finalFood >= initialFood {
@@ -175,24 +139,23 @@ func TestEconomyStorageLimits(t *testing.T) {
 	econ := NewEconomicSystem()
 	state := NewGameState("test", 111)
 	state.AddBuilding(Building{Type: "warehouse", Location: "store", Level: 1})
-	if err := state.AddResource(Resource{Type: economy.ResourceGrain, Quantity: 200, Quality: 1.0}); err != nil {
+	if err := state.AddResource(Resource{Type: economy.ResourceGrain, Quantity: 500, Quality: 1.0}); err != nil {
 		t.Fatalf("AddResource failed: %v", err)
 	}
+	initialFood := int(state.Inventory.GetAvailable("global", economy.ResourceGrain))
+	t.Logf("initial food: %d", initialFood)
 	// capacity base 100 + warehouse 50 = 150
 	events := econ.Update(state.Calendar.Week, state, state.RNG.Rand())
 	// food should be reduced to 150
-	finalFood := 0
-	for _, r := range state.Resources {
-		if r.Type == economy.ResourceGrain {
-			finalFood = r.Quantity
-		}
-	}
+	finalFood := int(state.Inventory.GetAvailable("global", economy.ResourceGrain))
+	t.Logf("final food: %d", finalFood)
 	if finalFood > 150 {
 		t.Errorf("food exceeds capacity: %d", finalFood)
 	}
 	// should generate storage event
 	foundStorage := false
 	for _, ev := range events {
+		t.Logf("event type: %s", ev.Type)
 		if ev.Type == "storage" {
 			foundStorage = true
 		}

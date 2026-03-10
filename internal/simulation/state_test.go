@@ -5,6 +5,11 @@ import (
 	"testing"
 )
 
+// stateResourcesSlice returns all resources in the state's inventory as a simulation.Resource slice.
+func stateResourcesSlice(state *GameState) []Resource {
+	return ExportInventoryToGameState(state.Inventory)
+}
+
 func TestGameStateStruct(t *testing.T) {
 	// This test will fail until GameState is defined
 	gs := GameState{
@@ -14,7 +19,6 @@ func TestGameStateStruct(t *testing.T) {
 		Calendar:  Calendar{},
 		Village:   Village{},
 		Residents: []Resident{},
-		Resources: []Resource{},
 		Buildings: []Building{},
 		History:   []Event{},
 		Policies:  []Policy{},
@@ -43,7 +47,7 @@ func TestGameStateStruct(t *testing.T) {
 		t.Fatalf("failed to unmarshal JSON: %v", err)
 	}
 
-	expectedFields := []string{"id", "version", "seed", "calendar", "village", "residents", "resources", "buildings", "history", "policies"}
+	expectedFields := []string{"id", "version", "seed", "calendar", "village", "residents", "inventory", "buildings", "history", "policies"}
 	for _, field := range expectedFields {
 		if _, ok := m[field]; !ok {
 			t.Errorf("missing JSON field %q", field)
@@ -175,8 +179,8 @@ func TestNewGameState(t *testing.T) {
 	if len(gs.Residents) != 0 {
 		t.Errorf("expected empty Residents, got %d", len(gs.Residents))
 	}
-	if len(gs.Resources) != 0 {
-		t.Errorf("expected empty Resources, got %d", len(gs.Resources))
+	if len(stateResourcesSlice(gs)) != 0 {
+		t.Errorf("expected empty Resources, got %d", len(stateResourcesSlice(gs)))
 	}
 	if len(gs.Buildings) != 0 {
 		t.Errorf("expected empty Buildings, got %d", len(gs.Buildings))
@@ -207,11 +211,11 @@ func TestAddResource(t *testing.T) {
 	if err := gs.AddResource(res); err != nil {
 		t.Fatalf("AddResource failed: %v", err)
 	}
-	if len(gs.Resources) != 1 {
-		t.Fatalf("expected 1 resource, got %d", len(gs.Resources))
+	if len(stateResourcesSlice(gs)) != 1 {
+		t.Fatalf("expected 1 resource, got %d", len(stateResourcesSlice(gs)))
 	}
-	if gs.Resources[0].Type != "wood" {
-		t.Errorf("expected resource type 'wood', got %q", gs.Resources[0].Type)
+	if stateResourcesSlice(gs)[0].Type != "wood" {
+		t.Errorf("expected resource type 'wood', got %q", stateResourcesSlice(gs)[0].Type)
 	}
 }
 
@@ -300,7 +304,6 @@ func TestAddResource_Invalid(t *testing.T) {
 		t.Error("expected error for negative quantity")
 	}
 	// With inventory present (should also propagate error)
-	gs.SyncInventory()
 	err = gs.AddResource(Resource{Type: "unknown", Quantity: 10})
 	if err == nil {
 		t.Error("expected error for unknown resource type with inventory")

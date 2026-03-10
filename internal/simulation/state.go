@@ -1,25 +1,26 @@
 package simulation
 
 import (
+	"encoding/json"
 	"errors"
 	"github.com/vano44/village/internal/economy"
 )
 
 // GameState represents the entire simulation state.
 type GameState struct {
-	ID          string             `json:"id"`
-	Version     int                `json:"version"`
-	Seed        int64              `json:"seed"`
-	RNG         *RNG               `json:"rng"`
-	Calendar    Calendar           `json:"calendar"`
-	Village     Village            `json:"village"`
-	Residents   []Resident         `json:"residents"`
-	Resources   []Resource         `json:"resources"`
+	ID        string     `json:"id"`
+	Version   int        `json:"version"`
+	Seed      int64      `json:"seed"`
+	RNG       *RNG       `json:"rng"`
+	Calendar  Calendar   `json:"calendar"`
+	Village   Village    `json:"village"`
+	Residents []Resident `json:"residents"`
+
 	Buildings   []Building         `json:"buildings"`
 	History     []Event            `json:"history"`
 	Policies    []Policy           `json:"policies"`
 	Environment Environment        `json:"environment"`
-	Inventory   *economy.Inventory `json:"-"`
+	Inventory   *economy.Inventory `json:"inventory"`
 }
 
 // NewGameState creates a new GameState with default values.
@@ -42,7 +43,6 @@ func NewGameState(id string, seed int64) *GameState {
 			Climate: "mild",
 		},
 		Residents: []Resident{},
-		Resources: []Resource{},
 		Buildings: []Building{},
 		History:   []Event{},
 		Policies:  []Policy{},
@@ -55,6 +55,7 @@ func NewGameState(id string, seed int64) *GameState {
 			MineQuality:        0.6,
 			WildlifePopulation: 0.5,
 		},
+		Inventory: economy.NewInventory(),
 	}
 }
 
@@ -74,13 +75,9 @@ func (gs *GameState) AddResource(r Resource) error {
 	if !er.Validate() {
 		return errors.New("invalid resource")
 	}
-	gs.Resources = append(gs.Resources, r)
-	// If inventory exists, add the resource there as well (at default "global" location)
-	if gs.Inventory != nil {
-		er.Location = "global"
-		return gs.Inventory.AddResource("global", er)
-	}
-	return nil
+	// Add to inventory (Inventory is always present after NewGameState)
+	er.Location = "global"
+	return gs.Inventory.AddResource("global", er)
 }
 
 // AddBuilding adds a building to the state.
@@ -98,24 +95,74 @@ func (gs *GameState) AddPolicy(p Policy) {
 	gs.Policies = append(gs.Policies, p)
 }
 
-// SyncInventory ensures Inventory is populated from Resources.
-// If Inventory is nil, a new Inventory is created and resources are loaded.
-// If StorageRegistry is needed, it must be attached separately.
-func (gs *GameState) SyncInventory() {
-	if gs.Inventory == nil {
-		gs.Inventory = economy.NewInventory()
-		// Load existing resources into inventory at default location "global"
-		// Legacy resources are assigned current game date as production date
-		produced := CalendarToGameDate(gs.Calendar)
-		LoadInventoryFromGameState(gs.Inventory, gs.Resources, "global", produced)
-	}
+// MarshalJSON customizes JSON serialization for GameState.
+func (gs *GameState) MarshalJSON() ([]byte, error) {
+	resources := ExportInventoryToGameState(gs.Inventory)
+	return json.Marshal(struct {
+		ID          string      `json:"id"`
+		Version     int         `json:"version"`
+		Seed        int64       `json:"seed"`
+		RNG         *RNG        `json:"rng"`
+		Calendar    Calendar    `json:"calendar"`
+		Village     Village     `json:"village"`
+		Residents   []Resident  `json:"residents"`
+		Buildings   []Building  `json:"buildings"`
+		History     []Event     `json:"history"`
+		Policies    []Policy    `json:"policies"`
+		Environment Environment `json:"environment"`
+		Resources   []Resource  `json:"resources,omitempty"`
+	}{
+		ID:          gs.ID,
+		Version:     gs.Version,
+		Seed:        gs.Seed,
+		RNG:         gs.RNG,
+		Calendar:    gs.Calendar,
+		Village:     gs.Village,
+		Residents:   gs.Residents,
+		Buildings:   gs.Buildings,
+		History:     gs.History,
+		Policies:    gs.Policies,
+		Environment: gs.Environment,
+		Resources:   resources,
+	})
 }
 
-// SyncResources updates the Resources slice from Inventory.
-// This should be called after inventory modifications to keep Resources in sync.
-func (gs *GameState) SyncResources() {
-	if gs.Inventory == nil {
-		return
+// UnmarshalJSON customizes JSON deserialization for GameState.
+func (gs *GameState) UnmarshalJSON(data []byte) error {
+	var aux struct {
+		ID          string      `json:"id"`
+		Version     int         `json:"version"`
+		Seed        int64       `json:"seed"`
+		RNG         *RNG        `json:"rng"`
+		Calendar    Calendar    `json:"calendar"`
+		Village     Village     `json:"village"`
+		Residents   []Resident  `json:"residents"`
+		Buildings   []Building  `json:"buildings"`
+		History     []Event     `json:"history"`
+		Policies    []Policy    `json:"policies"`
+		Environment Environment `json:"environment"`
+		Resources   []Resource  `json:"resources"`
 	}
-	gs.Resources = ExportInventoryToGameState(gs.Inventory)
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+	gs.ID = aux.ID
+	gs.Version = aux.Version
+	gs.Seed = aux.Seed
+	gs.RNG = aux.RNG
+	gs.Calendar = aux.Calendar
+	gs.Village = aux.Village
+	gs.Residents = aux.Residents
+	gs.Buildings = aux.Buildings
+	gs.History = aux.History
+	gs.Policies = aux.Policies
+	gs.Environment = aux.Environment
+	gs.Inventory = economy.NewInventory()
+	if aux.Resources != nil {
+		produced := economy.GameDate{Year: gs.Calendar.Year, Week: gs.Calendar.Week}
+		if err := LoadInventoryFromGameState(gs.Inventory, aux.Resources, "global", produced); err != nil {
+			return err
+		}
+	}
+	return nil
 }

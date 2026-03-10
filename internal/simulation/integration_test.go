@@ -6,6 +6,15 @@ import (
 	"testing"
 )
 
+// countResourceEntries returns the total number of resource entries across all locations.
+func countResourceEntries(state *GameState) int {
+	total := 0
+	for _, list := range state.Inventory.ResourcesMap() {
+		total += len(list)
+	}
+	return total
+}
+
 // TestFullTurnCycleIntegration verifies that a complete turn cycle updates all systems.
 func TestFullTurnCycleIntegration(t *testing.T) {
 	state := NewGameState("integration", 12345)
@@ -20,7 +29,7 @@ func TestFullTurnCycleIntegration(t *testing.T) {
 	if err := state.AddResource(Resource{Type: economy.ResourceGrain, Quantity: 100, Quality: 1.0}); err != nil {
 		t.Fatalf("AddResource failed: %v", err)
 	}
-	if err := state.AddResource(Resource{Type: "wood", Quantity: 50, Quality: 0.8}); err != nil {
+	if err := state.AddResource(Resource{Type: economy.ResourceWood, Quantity: 50, Quality: 0.8}); err != nil {
 		t.Fatalf("AddResource failed: %v", err)
 	}
 
@@ -33,8 +42,6 @@ func TestFullTurnCycleIntegration(t *testing.T) {
 
 	// Record initial state
 	initialWeek := state.Calendar.Week
-	initialResidents := len(state.Residents)
-	initialResources := len(state.Resources)
 
 	// Process a week
 	events := tp.ProcessWeek(state)
@@ -47,8 +54,6 @@ func TestFullTurnCycleIntegration(t *testing.T) {
 	// Resource count may change
 	// At least some events should be generated (maybe)
 	_ = events
-	_ = initialResidents
-	_ = initialResources
 }
 
 // TestSaveLoadCycle verifies that a GameState can be serialized and deserialized.
@@ -83,8 +88,8 @@ func TestSaveLoadCycle(t *testing.T) {
 	if len(state1.Residents) != len(state2.Residents) {
 		t.Errorf("resident count mismatch: %d vs %d", len(state1.Residents), len(state2.Residents))
 	}
-	if len(state1.Resources) != len(state2.Resources) {
-		t.Errorf("resource count mismatch: %d vs %d", len(state1.Resources), len(state2.Resources))
+	if countResourceEntries(state1) != countResourceEntries(&state2) {
+		t.Errorf("resource count mismatch: %d vs %d", countResourceEntries(state1), countResourceEntries(&state2))
 	}
 	// Note: RNG state is not preserved by JSON; that's expected.
 }
