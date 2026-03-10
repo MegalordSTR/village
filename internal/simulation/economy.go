@@ -2,7 +2,9 @@ package simulation
 
 import (
 	"github.com/vano44/village/internal/economy"
+	"log"
 	"math/rand"
+	"strings"
 )
 
 // EconomicSystem implements the economic simulation system.
@@ -27,6 +29,16 @@ func NewEconomicSystem() *EconomicSystem {
 	return &EconomicSystem{
 		wealth:  make(map[string]float64),
 		storage: storage,
+	}
+}
+
+// logRemoveResourceError logs an error from RemoveResource at appropriate severity.
+// DEBUG for expected "insufficient quantity" errors, WARN for other errors.
+func logRemoveResourceError(err error, operation string, resource economy.ResourceType, quantity float64) {
+	if strings.Contains(err.Error(), "insufficient quantity") {
+		log.Printf("DEBUG: operation=%s resource=%s quantity=%f message=\"resource not present, skipping\"", operation, resource, quantity)
+	} else {
+		log.Printf("WARN: operation=%s resource=%s quantity=%f error=%v", operation, resource, quantity, err)
 	}
 }
 
@@ -84,7 +96,8 @@ func (e *EconomicSystem) consumeResourcesByResidents(week int, state *GameState,
 		// Remove as much as possible from inventory at "global" location
 		removed, err := state.Inventory.RemoveResource("global", rt, float64(foodNeeded))
 		if err != nil {
-			// Ignore error (e.g., resource not present)
+			// Log expected "insufficient quantity" as DEBUG, others as WARN
+			logRemoveResourceError(err, "CalculateFoodConsumption", rt, float64(foodNeeded))
 			continue
 		}
 		if removed > 0 {
@@ -164,6 +177,8 @@ func (e *EconomicSystem) consumeMaintenanceResources(week int, state *GameState,
 		}
 		removed, err := state.Inventory.RemoveResource("global", rt, float64(amount))
 		if err != nil {
+			// Log expected "insufficient quantity" as DEBUG, others as WARN
+			logRemoveResourceError(err, "calculateBuildingMaintenance", rt, float64(amount))
 			return 0
 		}
 		return int(removed)
@@ -317,7 +332,8 @@ func (e *EconomicSystem) enforceStorageLimits(week int, state *GameState, rng *r
 		// Remove excess from inventory (from global location)
 		removed, err := state.Inventory.RemoveResource("global", r.Type, excess)
 		if err != nil {
-			// Should not happen
+			// Should not happen under normal operation; log WARN
+			log.Printf("WARN: operation=enforceStorageLimits resource=%s excess=%f error=%v", r.Type, excess, err)
 			continue
 		}
 		if removed > 0 {

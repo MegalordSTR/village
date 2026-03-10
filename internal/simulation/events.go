@@ -2,6 +2,7 @@ package simulation
 
 import (
 	"github.com/vano44/village/internal/economy"
+	"log"
 	"math/rand"
 )
 
@@ -162,11 +163,15 @@ func adjustResource(state *GameState, resourceType economy.ResourceType, percent
 			Produced: economy.GameDate{Year: state.Calendar.Year, Week: state.Calendar.Week},
 			Value:    economy.BaseValue(resourceType),
 		}
-		_ = state.Inventory.AddResource("global", r) // ignore error
+		if err := state.Inventory.AddResource("global", r); err != nil {
+			log.Printf("WARN: operation=adjustResource action=add resource=%s quantity=%f error=%v", resourceType, change, err)
+		}
 	} else if change < 0 {
 		// Remove resource (positive amount)
 		amount := -change
-		_, _ = state.Inventory.RemoveResource("global", resourceType, amount) // ignore error
+		if _, err := state.Inventory.RemoveResource("global", resourceType, amount); err != nil {
+			log.Printf("WARN: operation=adjustResource action=remove resource=%s amount=%f error=%v", resourceType, amount, err)
+		}
 	}
 }
 
