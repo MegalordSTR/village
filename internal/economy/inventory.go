@@ -2,6 +2,7 @@ package economy
 
 import (
 	"errors"
+	"log"
 	"math"
 )
 
@@ -72,20 +73,24 @@ func (inv *Inventory) CheckAlerts(thresholds AlertThreshold) []Alert {
 // If a storage registry is attached, it validates capacity and storage type.
 func (inv *Inventory) AddResource(location string, r Resource) error {
 	if !r.Validate() {
+		log.Printf("WARN: operation=AddResource location=%s resource=%s quantity=%f error=\"invalid resource: type not recognized or negative quantity\"", location, r.Type, r.Quantity)
 		return errors.New("invalid resource: type not recognized or negative quantity")
 	}
 	if inv.storage != nil {
 		// Check if resource type can be stored at this location
 		if !inv.storage.CanStoreResourceAt(location, r.Type) {
+			log.Printf("WARN: operation=AddResource location=%s resource=%s quantity=%f error=\"resource type cannot be stored at this location\"", location, r.Type, r.Quantity)
 			return errors.New("resource type cannot be stored at this location")
 		}
 		// Check capacity
 		available := inv.storage.AvailableCapacity(location, inv)
 		if r.Quantity > available {
+			log.Printf("WARN: operation=AddResource location=%s resource=%s quantity=%f available=%f error=\"insufficient storage capacity\"", location, r.Type, r.Quantity, available)
 			return errors.New("insufficient storage capacity")
 		}
 	}
 	inv.resources[location] = append(inv.resources[location], r)
+	log.Printf("INFO: operation=AddResource location=%s resource=%s quantity=%f", location, r.Type, r.Quantity)
 	return nil
 }
 
@@ -108,15 +113,18 @@ func (inv *Inventory) GetAvailable(location string, rt ResourceType) float64 {
 // Returns the amount removed (equal to quantity) or an error if insufficient.
 func (inv *Inventory) RemoveResource(location string, rt ResourceType, quantity float64) (float64, error) {
 	if quantity < 0 || math.IsNaN(quantity) || math.IsInf(quantity, 0) {
+		log.Printf("WARN: operation=RemoveResource location=%s resource=%s quantity=%f error=\"invalid quantity: must be non‑negative finite number\"", location, rt, quantity)
 		return 0.0, errors.New("invalid quantity: must be non‑negative finite number")
 	}
 	available := inv.GetAvailable(location, rt)
 	if available < quantity {
+		log.Printf("WARN: operation=RemoveResource location=%s resource=%s quantity=%f available=%f error=\"insufficient quantity\"", location, rt, quantity, available)
 		return 0.0, errors.New("insufficient quantity")
 	}
 	list, ok := inv.resources[location]
 	if !ok {
-		return 0.0, nil // should not happen because available >= quantity > 0
+		// should not happen because available >= quantity > 0
+		return 0.0, nil
 	}
 	remaining := quantity
 	var newList []Resource
@@ -137,7 +145,9 @@ func (inv *Inventory) RemoveResource(location string, rt ResourceType, quantity 
 		}
 	}
 	inv.resources[location] = newList
-	return quantity - remaining, nil
+	removed := quantity - remaining
+	log.Printf("INFO: operation=RemoveResource location=%s resource=%s quantity=%f removed=%f", location, rt, quantity, removed)
+	return removed, nil
 }
 
 // TransferResource moves quantity of a resource type from source to destination location.
@@ -145,15 +155,19 @@ func (inv *Inventory) TransferResource(src, dst string, rt ResourceType, quantit
 	// Remove from source
 	removed, err := inv.RemoveResource(src, rt, quantity)
 	if err != nil {
+		// RemoveResource already logged the error
 		return 0.0, err
 	}
 	if removed == 0.0 {
+		log.Printf("INFO: operation=TransferResource src=%s dst=%s resource=%s quantity=%f removed=0", src, dst, rt, quantity)
 		return 0.0, nil
 	}
 	// Add to destination as a new resource with default quality and produced date
 	if err := inv.AddResource(dst, NewResource(rt, removed)); err != nil {
+		// AddResource already logged the error
 		return 0.0, err
 	}
+	log.Printf("INFO: operation=TransferResource src=%s dst=%s resource=%s quantity=%f removed=%f", src, dst, rt, quantity, removed)
 	return removed, nil
 }
 

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/vano44/village/internal/economy"
+	"log"
 )
 
 // GameState represents the entire simulation state.
@@ -68,16 +69,24 @@ func (gs *GameState) AddResident(r Resident) {
 func (gs *GameState) AddResource(r Resource) error {
 	// Reject unknown resource types (including unmapped legacy strings)
 	if !IsKnownType(string(r.Type)) {
+		log.Printf("WARN: operation=GameState.AddResource resource=%s quantity=%d error=\"invalid resource type\"", r.Type, r.Quantity)
 		return errors.New("invalid resource type")
 	}
 	// Convert to economy resource and validate quantity
 	er := ToEconomyResource(r)
 	if !er.Validate() {
+		log.Printf("WARN: operation=GameState.AddResource resource=%s quantity=%d error=\"invalid resource\"", r.Type, r.Quantity)
 		return errors.New("invalid resource")
 	}
 	// Add to inventory (Inventory is always present after NewGameState)
 	er.Location = "global"
-	return gs.Inventory.AddResource("global", er)
+	err := gs.Inventory.AddResource("global", er)
+	if err != nil {
+		// Inventory.AddResource already logs the error
+		return err
+	}
+	log.Printf("INFO: operation=GameState.AddResource resource=%s quantity=%d", r.Type, r.Quantity)
+	return nil
 }
 
 // AddBuilding adds a building to the state.

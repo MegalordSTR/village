@@ -2,8 +2,15 @@ package simulation
 
 import (
 	"encoding/json"
+	"io"
+	"log"
 	"testing"
 )
+
+func init() {
+	// Suppress log output during tests
+	log.SetOutput(io.Discard)
+}
 
 // stateResourcesSlice returns all resources in the state's inventory as a simulation.Resource slice.
 func stateResourcesSlice(state *GameState) []Resource {

@@ -1,9 +1,16 @@
 package economy
 
 import (
+	"io"
+	"log"
 	"math"
 	"testing"
 )
+
+func init() {
+	// Suppress log output during tests
+	log.SetOutput(io.Discard)
+}
 
 func TestInventory_AddResource(t *testing.T) {
 	inv := NewInventory()

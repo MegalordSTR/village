@@ -147,7 +147,13 @@ func AddProducedResource(state *GameState, building *Building, rt economy.Resour
 		Produced: economy.GameDate{Year: state.Calendar.Year, Week: state.Calendar.Week},
 		Value:    economy.BaseValue(rt),
 	}
-	return state.Inventory.AddResource(building.Location, er)
+	err := state.Inventory.AddResource(building.Location, er)
+	if err != nil {
+		// Inventory.AddResource already logs the error
+		return err
+	}
+	log.Printf("INFO: operation=AddProducedResource building=%s resource=%s quantity=%d quality=%f", building.Location, rt, quantity, qualityFloat)
+	return nil
 }
 
 // ConsumeResourceFromState consumes up to the requested amount of a resource type.
@@ -155,8 +161,10 @@ func AddProducedResource(state *GameState, building *Building, rt economy.Resour
 func ConsumeResourceFromState(state *GameState, rt economy.ResourceType, amount int) (int, error) {
 	consumed, err := state.Inventory.RemoveResource("global", rt, float64(amount))
 	if err != nil {
+		// Inventory.RemoveResource already logs the error
 		return 0, err
 	}
+	log.Printf("INFO: operation=ConsumeResourceFromState resource=%s requested=%d consumed=%d", rt, amount, int(consumed))
 	return int(consumed), nil
 }
 

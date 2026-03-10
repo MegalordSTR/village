@@ -1,10 +1,17 @@
 package simulation
 
 import (
+	"io"
+	"log"
 	"testing"
 
 	"github.com/vano44/village/internal/economy"
 )
+
+func init() {
+	// Suppress log output during tests
+	log.SetOutput(io.Discard)
+}
 
 func TestStringToResourceType_KnownLegacy(t *testing.T) {
 	tests := []struct {
