@@ -1,6 +1,7 @@
 package simulation
 
 import (
+	"github.com/vano44/village/internal/economy"
 	"testing"
 )
 
@@ -227,10 +228,10 @@ func TestSocialFoodAvailability(t *testing.T) {
 	state.AddResident(Resident{ID: "r1", Name: "Hungry", Age: 30})
 
 	// Add some food resources
-	if err := state.AddResource(Resource{Type: "food", Quantity: 100, Quality: 1.0}); err != nil {
+	if err := state.AddResource(Resource{Type: economy.ResourceGrain, Quantity: 100, Quality: 1.0}); err != nil {
 		t.Fatal(err)
 	}
-	if err := state.AddResource(Resource{Type: "grain", Quantity: 50, Quality: 0.8}); err != nil {
+	if err := state.AddResource(Resource{Type: economy.ResourceGrain, Quantity: 50, Quality: 0.8}); err != nil {
 		t.Fatal(err)
 	}
 

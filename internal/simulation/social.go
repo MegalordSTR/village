@@ -2,6 +2,7 @@ package simulation
 
 import (
 	"fmt"
+	"github.com/vano44/village/internal/economy"
 	"math/rand"
 )
 
@@ -121,7 +122,7 @@ func (s *SocialSystem) updateNeeds(resident *Resident, state *GameState, rng *ra
 func (s *SocialSystem) getFoodAvailability(state *GameState) float64 {
 	foodCount := 0
 	for _, r := range state.Resources {
-		if r.Type == "food" || r.Type == "grain" || r.Type == "meat" {
+		if StringToResourceType(string(r.Type)) == economy.ResourceGrain {
 			foodCount += r.Quantity
 		}
 	}

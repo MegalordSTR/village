@@ -95,7 +95,7 @@ func (e *EconomicSystem) consumeResourcesByResidents(week int, state *GameState,
 	if foodNeeded > 0 && state.Resources != nil {
 		// This should rarely happen if inventory is synced, but keep for backward compatibility
 		for i := range state.Resources {
-			if state.Resources[i].Type == "food" {
+			if state.Resources[i].Type == economy.ResourceGrain {
 				available := state.Resources[i].Quantity
 				take := foodNeeded
 				if take > available {
@@ -387,7 +387,7 @@ func (e *EconomicSystem) enforceStorageLimits(week int, state *GameState, rng *r
 	// This is redundant but ensures backward compatibility
 	for i := range state.Resources {
 		r := &state.Resources[i]
-		if r.Type == "food" || r.Type == "grain" || r.Type == "meat" {
+		if StringToResourceType(string(r.Type)) == economy.ResourceGrain {
 			if r.Quantity > totalCapacity {
 				excess := r.Quantity - totalCapacity
 				r.Quantity = totalCapacity

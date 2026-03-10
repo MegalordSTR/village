@@ -41,12 +41,12 @@ func TestSimulationEconomyIntegration(t *testing.T) {
 	}
 	// Add economic resources
 	state.AddResource(simulation.Resource{
-		Type:     "food",
+		Type:     economy.ResourceGrain,
 		Quantity: 100,
 		Quality:  1.0,
 	})
 	state.AddResource(simulation.Resource{
-		Type:     "wood",
+		Type:     economy.ResourceWood,
 		Quantity: 50,
 		Quality:  0.8,
 	})
@@ -73,7 +73,7 @@ func TestSimulationEconomyIntegration(t *testing.T) {
 	}
 
 	// Use economy package to calculate something
-	category := economy.CategoryForResource(economy.ResourceType("food"))
+	category := economy.CategoryForResource(economy.ResourceGrain)
 	if category != economy.CategoryRaw {
 		t.Errorf("expected raw category, got %v", category)
 	}

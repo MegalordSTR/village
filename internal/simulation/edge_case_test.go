@@ -1,6 +1,7 @@
 package simulation
 
 import (
+	"github.com/vano44/village/internal/economy"
 	"testing"
 )
 
@@ -86,7 +87,7 @@ func TestExtremeResourceQuantities(t *testing.T) {
 	state := NewGameState("extreme-resources", 999)
 	// Add a massive amount of a resource
 	if err := state.AddResource(Resource{
-		Type:     "food",
+		Type:     economy.ResourceGrain,
 		Quantity: 1_000_000,
 		Quality:  1.0,
 	}); err != nil {

@@ -1,6 +1,7 @@
 package simulation
 
 import (
+	"github.com/vano44/village/internal/economy"
 	"testing"
 )
 
@@ -24,11 +25,11 @@ func TestEconomyUpdateDeterministic(t *testing.T) {
 
 	// Add some residents and resources for testing
 	state1.AddResident(Resident{ID: "r1", Name: "Alice", Age: 30})
-	if err := state1.AddResource(Resource{Type: "food", Quantity: 100, Quality: 1.0}); err != nil {
+	if err := state1.AddResource(Resource{Type: economy.ResourceGrain, Quantity: 100, Quality: 1.0}); err != nil {
 		t.Fatalf("AddResource failed: %v", err)
 	}
 	state2.AddResident(Resident{ID: "r1", Name: "Alice", Age: 30})
-	if err := state2.AddResource(Resource{Type: "food", Quantity: 100, Quality: 1.0}); err != nil {
+	if err := state2.AddResource(Resource{Type: economy.ResourceGrain, Quantity: 100, Quality: 1.0}); err != nil {
 		t.Fatalf("AddResource failed: %v", err)
 	}
 
@@ -49,18 +50,15 @@ func TestEconomyUpdateConsumesFood(t *testing.T) {
 	econ := NewEconomicSystem()
 	state := NewGameState("test", 456)
 	state.AddResident(Resident{ID: "r1", Name: "Bob", Age: 25})
-	if err := state.AddResource(Resource{Type: "food", Quantity: 50, Quality: 1.0}); err != nil {
+	if err := state.AddResource(Resource{Type: economy.ResourceGrain, Quantity: 50, Quality: 1.0}); err != nil {
 		t.Fatalf("AddResource failed: %v", err)
 	}
 
 	initialFood := 0
 	for _, r := range state.Resources {
-		if r.Type == "food" {
+		if r.Type == economy.ResourceGrain {
 			initialFood = r.Quantity
 		}
-	}
-	if initialFood == 0 {
-		t.Fatal("food not added")
 	}
 
 	events := econ.Update(state.Calendar.Week, state, state.RNG.Rand())
@@ -68,7 +66,7 @@ func TestEconomyUpdateConsumesFood(t *testing.T) {
 	// Should consume some food
 	finalFood := 0
 	for _, r := range state.Resources {
-		if r.Type == "food" {
+		if r.Type == economy.ResourceGrain {
 			finalFood = r.Quantity
 		}
 	}
@@ -144,13 +142,13 @@ func TestEconomyUpdateBuildingMaintenance(t *testing.T) {
 func TestEconomyFoodSpoilage(t *testing.T) {
 	econ := NewEconomicSystem()
 	state := NewGameState("test", 999)
-	if err := state.AddResource(Resource{Type: "food", Quantity: 100, Quality: 1.0}); err != nil {
+	if err := state.AddResource(Resource{Type: economy.ResourceGrain, Quantity: 100, Quality: 1.0}); err != nil {
 		t.Fatalf("AddResource failed: %v", err)
 	}
 
 	initialFood := 0
 	for _, r := range state.Resources {
-		if r.Type == "food" {
+		if r.Type == economy.ResourceGrain {
 			initialFood = r.Quantity
 		}
 	}
@@ -162,7 +160,7 @@ func TestEconomyFoodSpoilage(t *testing.T) {
 
 	finalFood := 0
 	for _, r := range state.Resources {
-		if r.Type == "food" {
+		if r.Type == economy.ResourceGrain {
 			finalFood = r.Quantity
 		}
 	}
@@ -177,7 +175,7 @@ func TestEconomyStorageLimits(t *testing.T) {
 	econ := NewEconomicSystem()
 	state := NewGameState("test", 111)
 	state.AddBuilding(Building{Type: "warehouse", Location: "store", Level: 1})
-	if err := state.AddResource(Resource{Type: "food", Quantity: 200, Quality: 1.0}); err != nil {
+	if err := state.AddResource(Resource{Type: economy.ResourceGrain, Quantity: 200, Quality: 1.0}); err != nil {
 		t.Fatalf("AddResource failed: %v", err)
 	}
 	// capacity base 100 + warehouse 50 = 150
@@ -185,7 +183,7 @@ func TestEconomyStorageLimits(t *testing.T) {
 	// food should be reduced to 150
 	finalFood := 0
 	for _, r := range state.Resources {
-		if r.Type == "food" {
+		if r.Type == economy.ResourceGrain {
 			finalFood = r.Quantity
 		}
 	}

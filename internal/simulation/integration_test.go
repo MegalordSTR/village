@@ -2,6 +2,7 @@ package simulation
 
 import (
 	"encoding/json"
+	"github.com/vano44/village/internal/economy"
 	"testing"
 )
 
@@ -16,7 +17,7 @@ func TestFullTurnCycleIntegration(t *testing.T) {
 			Age:  25 + i*5,
 		})
 	}
-	if err := state.AddResource(Resource{Type: "food", Quantity: 100, Quality: 1.0}); err != nil {
+	if err := state.AddResource(Resource{Type: economy.ResourceGrain, Quantity: 100, Quality: 1.0}); err != nil {
 		t.Fatalf("AddResource failed: %v", err)
 	}
 	if err := state.AddResource(Resource{Type: "wood", Quantity: 50, Quality: 0.8}); err != nil {
