@@ -3,6 +3,7 @@ package simulation
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/vano44/village/internal/economy"
 	"log"
 )
@@ -73,14 +74,18 @@ func (gs *GameState) AddResource(r Resource) error {
 		return errors.New("invalid resource type")
 	}
 	// Convert to economy resource and validate quantity
-	er := ToEconomyResource(r)
+	er, err := ToEconomyResource(r)
+	if err != nil {
+		log.Printf("WARN: operation=GameState.AddResource resource=%s quantity=%d error=\"%v\"", r.Type, r.Quantity, err)
+		return fmt.Errorf("invalid resource type: %w", err)
+	}
 	if !er.Validate() {
 		log.Printf("WARN: operation=GameState.AddResource resource=%s quantity=%d error=\"invalid resource\"", r.Type, r.Quantity)
 		return errors.New("invalid resource")
 	}
 	// Add to inventory (Inventory is always present after NewGameState)
 	er.Location = "global"
-	err := gs.Inventory.AddResource("global", er)
+	err = gs.Inventory.AddResource("global", er)
 	if err != nil {
 		// Inventory.AddResource already logs the error
 		return err

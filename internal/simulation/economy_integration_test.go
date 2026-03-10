@@ -41,7 +41,10 @@ func TestStringToResourceType_KnownLegacy(t *testing.T) {
 	}
 	for _, tc := range tests {
 		t.Run(tc.input, func(t *testing.T) {
-			got := StringToResourceType(tc.input)
+			got, err := StringToResourceType(tc.input)
+			if err != nil {
+				t.Errorf("StringToResourceType(%q) returned error: %v", tc.input, err)
+			}
 			if got != tc.expected {
 				t.Errorf("StringToResourceType(%q) = %v, want %v", tc.input, got, tc.expected)
 			}
@@ -50,10 +53,14 @@ func TestStringToResourceType_KnownLegacy(t *testing.T) {
 }
 
 func TestStringToResourceType_Unknown(t *testing.T) {
-	// Unknown string should map to ResourceGrain
-	got := StringToResourceType("unknown_resource")
+	// Unknown string should return an error
+	got, err := StringToResourceType("unknown_resource")
+	if err == nil {
+		t.Errorf("StringToResourceType(\"unknown_resource\") should return error, got %v", got)
+	}
+	// Returned type may be ResourceGrain (default) but error is primary
 	if got != economy.ResourceGrain {
-		t.Errorf("StringToResourceType(\"unknown_resource\") = %v, want %v", got, economy.ResourceGrain)
+		t.Errorf("StringToResourceType(\"unknown_resource\") = %v, want %v on error", got, economy.ResourceGrain)
 	}
 }
 
@@ -78,10 +85,44 @@ func TestStringToResourceType_ValidType(t *testing.T) {
 	}
 	for _, rt := range tests {
 		t.Run(string(rt), func(t *testing.T) {
-			got := StringToResourceType(string(rt))
+			got, err := StringToResourceType(string(rt))
+			if err != nil {
+				t.Errorf("StringToResourceType(%q) returned error: %v", rt, err)
+			}
 			if got != rt {
 				t.Errorf("StringToResourceType(%q) = %v, want %v", rt, got, rt)
 			}
 		})
+	}
+}
+
+func TestLoadInventoryFromGameState_SizeLimit(t *testing.T) {
+	inv := economy.NewInventory()
+	resources := make([]Resource, 10001) // exceed limit
+	for i := range resources {
+		resources[i] = Resource{
+			Type:     "grain",
+			Quantity: 1,
+			Quality:  1.0,
+		}
+	}
+	err := LoadInventoryFromGameState(inv, resources, "global", economy.GameDate{})
+	if err == nil {
+		t.Error("LoadInventoryFromGameState should reject oversized array")
+	}
+}
+
+func TestLoadInventoryFromGameState_UnknownResource(t *testing.T) {
+	inv := economy.NewInventory()
+	resources := []Resource{
+		{
+			Type:     "unknown_resource_type",
+			Quantity: 10,
+			Quality:  1.0,
+		},
+	}
+	err := LoadInventoryFromGameState(inv, resources, "global", economy.GameDate{})
+	if err == nil {
+		t.Error("LoadInventoryFromGameState should reject unknown resource type")
 	}
 }

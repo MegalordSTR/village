@@ -1,63 +1,66 @@
 package simulation
 
 import (
+	"fmt"
 	"github.com/vano44/village/internal/economy"
 	"log"
 	"math"
 )
 
+const maxResourcesPerLoad = 10000
+
 // StringToResourceType converts a legacy string to a valid economy.ResourceType.
 // It maps known legacy names (e.g., "food", "ore") to the appropriate economy constants.
-func StringToResourceType(s string) economy.ResourceType {
+// Returns an error for unknown resource types.
+func StringToResourceType(s string) (economy.ResourceType, error) {
 	rt := economy.ResourceType(s)
 	if economy.IsValidType(rt) {
-		return rt
+		return rt, nil
 	}
 	// Map legacy names
 	switch s {
 	case "food":
-		return economy.ResourceGrain
+		return economy.ResourceGrain, nil
 	case "ore":
-		return economy.ResourceIronOre
+		return economy.ResourceIronOre, nil
 	case "tool":
-		return economy.ResourceTools
+		return economy.ResourceTools, nil
 	case "wheat":
-		return economy.ResourceGrain
+		return economy.ResourceGrain, nil
 	case "gold":
-		return economy.ResourceIronOre
+		return economy.ResourceIronOre, nil
 	case "meat":
-		return economy.ResourceGrain
+		return economy.ResourceGrain, nil
 	case "wood":
-		return economy.ResourceWood
+		return economy.ResourceWood, nil
 	case "stone":
-		return economy.ResourceStone
+		return economy.ResourceStone, nil
 	case "iron":
-		return economy.ResourceIron
+		return economy.ResourceIron, nil
 	case "flour":
-		return economy.ResourceFlour
+		return economy.ResourceFlour, nil
 	case "bread":
-		return economy.ResourceBread
+		return economy.ResourceBread, nil
 	case "planks":
-		return economy.ResourcePlanks
+		return economy.ResourcePlanks, nil
 	case "cloth":
-		return economy.ResourceCloth
+		return economy.ResourceCloth, nil
 	case "wool":
-		return economy.ResourceWool
+		return economy.ResourceWool, nil
 	case "vegetables":
-		return economy.ResourceVegetables
+		return economy.ResourceVegetables, nil
 	case "iron_ore":
-		return economy.ResourceIronOre
+		return economy.ResourceIronOre, nil
 	case "tools":
-		return economy.ResourceTools
+		return economy.ResourceTools, nil
 	case "furniture":
-		return economy.ResourceFurniture
+		return economy.ResourceFurniture, nil
 	case "weapons":
-		return economy.ResourceWeapons
+		return economy.ResourceWeapons, nil
 	case "clothing":
-		return economy.ResourceClothing
+		return economy.ResourceClothing, nil
 	default:
-		log.Printf("WARNING: unknown resource type %q mapped to ResourceGrain", s)
-		return economy.ResourceGrain
+		return economy.ResourceGrain, fmt.Errorf("unknown resource type %q", s)
 	}
 }
 
@@ -86,8 +89,12 @@ func CalendarToGameDate(cal Calendar) economy.GameDate {
 
 // ToEconomyResource converts a simulation Resource to an economy Resource.
 // Uses default values for missing fields (Location empty, Produced zero, Value base value).
-func ToEconomyResource(sr Resource) economy.Resource {
-	rt := StringToResourceType(string(sr.Type))
+// Returns an error if the resource type is unknown.
+func ToEconomyResource(sr Resource) (economy.Resource, error) {
+	rt, err := StringToResourceType(string(sr.Type))
+	if err != nil {
+		return economy.Resource{}, err
+	}
 	return economy.Resource{
 		Type:     rt,
 		Quantity: float64(sr.Quantity),
@@ -95,7 +102,7 @@ func ToEconomyResource(sr Resource) economy.Resource {
 		Location: "",
 		Produced: economy.GameDate{},
 		Value:    economy.BaseValue(rt),
-	}
+	}, nil
 }
 
 // FromEconomyResource converts an economy Resource to a simulation Resource.
@@ -112,8 +119,14 @@ func FromEconomyResource(er economy.Resource) Resource {
 // LoadInventoryFromGameState imports simulation resources into inventory, assigning them to defaultLocation.
 // Legacy resources are assigned the provided production date (typically current game date).
 func LoadInventoryFromGameState(inv *economy.Inventory, resources []Resource, defaultLocation string, produced economy.GameDate) error {
+	if len(resources) > maxResourcesPerLoad {
+		return fmt.Errorf("resource array too large: %d > %d", len(resources), maxResourcesPerLoad)
+	}
 	for _, sr := range resources {
-		r := ToEconomyResource(sr)
+		r, err := ToEconomyResource(sr)
+		if err != nil {
+			return fmt.Errorf("invalid resource %v: %w", sr, err)
+		}
 		r.Location = defaultLocation
 		r.Produced = produced
 		if err := inv.AddResource(defaultLocation, r); err != nil {

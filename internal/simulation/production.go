@@ -2,6 +2,7 @@ package simulation
 
 import (
 	"github.com/vano44/village/internal/economy"
+	"log"
 	"math/rand"
 )
 
@@ -65,7 +66,15 @@ func processAgriculture(week int, state *GameState, rng *rand.Rand) []Event {
 		if growthStage >= 3 {
 			yield := calculateYield(state.Environment, b.Level, rng)
 			// Add resource
-			rt := StringToResourceType(b.Metadata["crop_type"].(string))
+			cropTypeStr := b.Metadata["crop_type"].(string)
+			rt, err := StringToResourceType(cropTypeStr)
+			if err != nil {
+				log.Printf("ERROR: unknown crop type %q, skipping harvest", cropTypeStr)
+				// Reset crop (re-plant) and continue to next building
+				b.Metadata["growth_stage"] = 0
+				b.Metadata["planted_week"] = week
+				continue
+			}
 			_ = AddProducedResource(state, b, rt, yield, 1.0) // TODO: vary quality based on conditions
 			// Record event
 			events = append(events, Event{
