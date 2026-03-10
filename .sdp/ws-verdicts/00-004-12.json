@@ -1,0 +1,48 @@
+{
+  "ws_id": "00-004-12",
+  "feature_id": "F004",
+  "verdict": "PASS",
+  "commit": "48ed26ea09dcca8070c66ecdf1b04b39ec5abf70",
+  "quality_gates": {
+    "tests_pass": true,
+    "lint_clean": true,
+    "coverage_pct": 84.2,
+    "coverage_threshold": 80,
+    "max_file_loc": 94,
+    "build_ok": true,
+    "vet_ok": true
+  },
+  "ac_evidence": [
+    {
+      "ac": "Resource.Validate() returns false for infinite (math.IsInf) and NaN (math.IsNaN) quantities",
+      "met": true,
+      "evidence": "Validate method in internal/economy/resources.go:45-55 includes math.IsNaN/IsInf checks; TestResourceValidate in internal/economy/resources_test.go verifies NaN, +Inf, -Inf cases"
+    },
+    {
+      "ac": "Inventory.AddResource (which calls Validate) rejects invalid quantities with appropriate error messages",
+      "met": true,
+      "evidence": "TestInventory_AddResource_Invalid in internal/economy/inventory_test.go includes NaN and Inf cases; AddResource calls Validate (line 75)"
+    },
+    {
+      "ac": "Inventory.RemoveResource continues to reject NaN/Inf quantities (already implemented)",
+      "met": true,
+      "evidence": "TestInventory_RemoveResource_InvalidQuantity in internal/economy/inventory_test.go:217-226 already validates NaN/Inf; test passes"
+    },
+    {
+      "ac": "Inventory.TransferResource propagates validation errors",
+      "met": true,
+      "evidence": "TransferResource calls RemoveResource and AddResource (lines 156,166); validation errors propagate automatically"
+    },
+    {
+      "ac": "Tests are added to verify validation rejects NaN, +Inf, and -Inf quantities",
+      "met": true,
+      "evidence": "TestResourceValidate and TestInventory_AddResource_Invalid include these test cases"
+    },
+    {
+      "ac": "Existing tests pass; no regression in inventory or simulation functionality",
+      "met": true,
+      "evidence": "All tests in internal/economy pass (go test ./internal/economy)"
+    }
+  ],
+  "existing_work_summary": "Resource.Validate only checked quantity >=0; Inventory.RemoveResource already validated NaN/Inf; Inventory.AddResource used Validate; tests for RemoveResource existed; no resources_test.go existed before."
+}
